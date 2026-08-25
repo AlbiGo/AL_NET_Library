@@ -7,10 +7,4 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Behavioral\Mediator\" />
-    <Folder Include="Creational\Prototype\" />
-    <Folder Include="Structural\" />
-  </ItemGroup>
-
 </Project>

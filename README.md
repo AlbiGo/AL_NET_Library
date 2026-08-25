@@ -1,53 +1,66 @@
-Welcome to the C#/.NET Library repository! This project is a collection of various C#/.NET/.NET Core software engineering concepts, demonstrating different practices, patterns, and techniques for C# development.
+# C# / .NET Library
 
-The goal of this repository is to provide helpful code examples, resources, and tools for both beginners and experienced developers looking to improve their C# programming skills. It covers topics like multithreading, dependency injection, design patterns, and more.
+A collection of C# / .NET examples covering software engineering concepts, patterns, and techniques.
 
-Contents
-This repository is structured into multiple folders, each dedicated to a specific topic:
+The project is still growing. Contributions are welcome once the library is in good shape for sharing more widely.
 
-Multithreading: Code examples demonstrating multi-threading techniques in C#.
-Dependency Injection: Implementations and explanations of the Dependency Injection pattern.
-Design Patterns: Examples of commonly used design patterns, such as Singleton, Factory, and Observer.
-Algorithms: A collection of common algorithms implemented in C#.
-Unit Testing: Guides and code examples for unit testing using popular testing frameworks like NUnit and MSTest.
-Features
-Easy-to-understand examples with explanations.
-Well-structured code for different C# topics.
-Continuously growing collection as new concepts and examples are added.
+## Contents (in solution)
 
-The project is still on its initial steps so there is a lot of space for improvements and knowledge sharing. Everyone is invited to contribute, share knowledge or expand the library. When the library will be on great condition will be shared with the network.
+Projects under [AL_NET_Library.sln](AL_NET_Library.sln), grouped by topic:
 
-Please respect the contributing rules such as :
+| Solution folder | Projects |
+| --- | --- |
+| **Patterns** | `DesignPatterns`, `SOLID` |
+| **Data** | `DataManagement`, `EntityFrameworkTraining`, `AuditEntry`, `LINQ`, `Logging` |
+| **Concurrency** | `Threads`, `Memory_Span` (placeholder), `Parallell` (placeholder) |
+| **Architecture** | `DependencyInjection`, `AdvancedFeatures` |
+| **Fundamentals** | `Exceptions` |
 
-1 - Always use branching and PRs.
-2 - All development must start from dev branch.
-3 - Use descriptive branch naming. (username/(feature/bug/fix/new)/branch-name-unique-code
-4 - Be professional on PR comments.
+`Memory_Span` and `Parallell` are stubs kept in the solution as placeholders for future examples.
 
-Getting Started
-To get started with this project:
+## On disk / not in solution (WIP)
 
-Clone this repository to your local machine:
+These folders exist in the repo but are **not** added to the solution yet:
 
-bash
-Copy
-git clone https://github.com/AlbiGo/.NET_Library.git
-Open the repository in Visual Studio or any other preferred C# IDE.
+- `Training`
+- `CarServices`
+- `GarbageCollector`
+- `AsynchronousProgramming`
+- `MultithreadingAndConcurrency`
+- `DependencyInjectionOld`
+- `Solid Principles`
 
-Navigate through the different folders to explore the code examples.
+## Planned (not started)
 
-Follow the comments and explanations within the code to understand the implementation of various concepts.
+- Algorithms
+- Unit testing examples (NUnit / MSTest)
+- Additional design patterns (e.g. Observer, structural patterns)
 
-Requirements
-.NET Core SDK (Version X.X or later) for building and running the projects.
-Visual Studio or any IDE supporting C# development.
-Contributing
-We welcome contributions to this project! If you'd like to contribute, feel free to fork the repository, create a new branch, and submit a pull request with your changes.
+## Contributing
 
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. Always use branching and PRs.
+2. All development must start from the `dev` branch.
+3. Use descriptive branch naming: `username/(feature|bug|fix|new)/branch-name-unique-code`
+4. Be professional on PR comments.
 
-Acknowledgments
-C# Documentation
-Stack Overflow for being a great resource for solving C# development challenges.
-Feel free to modify or add more sections if necessary!
+## Getting started
+
+```bash
+git clone https://github.com/AlbiGo/AL_NET_Library.git
+```
+
+Open `AL_NET_Library.sln` in Visual Studio or another C# IDE, then explore the project folders and comments in the code.
+
+### Requirements
+
+- .NET SDK 6.0 or later (CI builds with .NET 8.0)
+- Visual Studio or any IDE that supports C# development
+
+## License
+
+This project is licensed under the MIT License — see the LICENSE file for details.
+
+## Acknowledgments
+
+- [C# documentation](https://learn.microsoft.com/dotnet/csharp/)
+- Stack Overflow and community resources for .NET development challenges

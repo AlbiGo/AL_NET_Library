@@ -1,31 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns.Creational.Singleton
+﻿namespace DesignPatterns.Creational.Singleton
 {
     public class LoadBalancer
     {
-        private static LoadBalancer instance = new LoadBalancer();
-        private static object locker;
+        private static LoadBalancer? instance = new LoadBalancer();
+        private static readonly object locker = new object();
         private readonly List<Server> servers;
         private readonly Random random = new Random();
 
         private LoadBalancer()
         {
-            // Load list of available servers
             servers = new List<Server>
-                {
-                  new Server{ Name = "ServerI", IP = "120.14.220.18" },
-                  new Server{ Name = "ServerII", IP = "120.14.220.19" },
-                  new Server{ Name = "ServerIII", IP = "120.14.220.20" },
-                  new Server{ Name = "ServerIV", IP = "120.14.220.21" },
-                  new Server{ Name = "ServerV", IP = "120.14.220.22" },
-                };
+            {
+                new Server { Name = "ServerI", IP = "120.14.220.18" },
+                new Server { Name = "ServerII", IP = "120.14.220.19" },
+                new Server { Name = "ServerIII", IP = "120.14.220.20" },
+                new Server { Name = "ServerIV", IP = "120.14.220.21" },
+                new Server { Name = "ServerV", IP = "120.14.220.22" },
+            };
         }
+
         public static LoadBalancer GetLoadBalancer()
         {
             // Support multithreaded applications through
@@ -53,7 +46,6 @@ namespace DesignPatterns.Creational.Singleton
                 return servers[r];
             }
         }
-
     }
 
     /// <summary>
@@ -61,8 +53,8 @@ namespace DesignPatterns.Creational.Singleton
     /// </summary>
     public class Server
     {
-        public string Name { get; set; }
-        public string IP { get; set; }
+        public string? Name { get; set; }
+        public string? IP { get; set; }
         public bool Taken { get; set; }
     }
 }

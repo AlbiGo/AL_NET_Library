@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns.Creational.Factory_Method
+﻿namespace DesignPatterns.Creational.Factory_Method
 {
     public abstract class Document
     {
@@ -25,7 +19,7 @@ namespace DesignPatterns.Creational.Factory_Method
         {
             pages.Add(new SkillsPage());
             pages.Add(new EducationPage());
-            pages.Add(new ExperiencePage());    
+            pages.Add(new ExperiencePage());
         }
     }
 
@@ -40,5 +34,4 @@ namespace DesignPatterns.Creational.Factory_Method
             pages.Add(new BibliographyPage());
         }
     }
-
 }

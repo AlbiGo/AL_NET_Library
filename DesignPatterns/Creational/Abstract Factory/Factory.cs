@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DesignPatterns.Creational.Abstract_Factory
+﻿namespace DesignPatterns.Creational.Abstract_Factory
 {
     public abstract class Factory
     {
@@ -19,7 +13,7 @@ namespace DesignPatterns.Creational.Abstract_Factory
         }
     }
 
-    public class HerbivorevoreFactory : Factory
+    public class HerbivoreFactory : Factory
     {
         public override Animal CreateAnimal()
         {
@@ -29,35 +23,31 @@ namespace DesignPatterns.Creational.Abstract_Factory
 
     public class Wolf : Animal
     {
-
     }
 
     public class Bison : Animal
     {
-
     }
 
     public class AnimalWorld
     {
-        private HerbivorevoreFactory factory;
-        private CarnivoreFactory _carnivoreFactory;
+        private readonly HerbivoreFactory _herbivoreFactory;
+        private readonly CarnivoreFactory _carnivoreFactory;
 
-        public AnimalWorld(HerbivorevoreFactory herbivorevoreFactory, 
-            CarnivoreFactory carnivoreFactory)
+        public AnimalWorld(HerbivoreFactory herbivoreFactory, CarnivoreFactory carnivoreFactory)
         {
-            factory = herbivorevoreFactory;
+            _herbivoreFactory = herbivoreFactory;
             _carnivoreFactory = carnivoreFactory;
         }
 
         public void RunFoodChain()
         {
-            var bison = factory.CreateAnimal();
+            var bison = _herbivoreFactory.CreateAnimal();
             var wolf = _carnivoreFactory.CreateAnimal();
 
             Console.WriteLine(wolf.GetType().Name + " eats " + bison.GetType().Name);
         }
     }
-
 
     public abstract class Animal
     {
@@ -71,5 +61,4 @@ namespace DesignPatterns.Creational.Abstract_Factory
         Herbivore,
         Carnivore
     }
-
 }
