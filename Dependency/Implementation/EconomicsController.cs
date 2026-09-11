@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DependencyInjection = Dependency.Implementation.DependencyInjection<Dependency.Implementation.Math>;
-
-namespace Dependency.Implementation
+﻿namespace Dependency.Implementation
 {
+    /// <summary>
+    /// Controller resolved from DI with constructor injection (preferred).
+    /// </summary>
     public class EconomicsController
     {
-        private IMathService _mathService;
-        public EconomicsController()
+        private readonly IMathService _mathService;
+
+        public EconomicsController(IMathService mathService)
         {
-            _mathService = (MathService)(DependencyInjection<IMathService>.GetService());
+            _mathService = mathService;
         }
 
         public void EconomicsCalc(Math math)

@@ -1,14 +1,15 @@
 ﻿using DataManagement.DbContext;
 using DataManagement.Entities;
 using DataManagement.Repositories.Interfaces;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace DataManagement.Repositories.Implementations
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
         private readonly DatabaseContext _databaseContext;
-        private readonly Microsoft.EntityFrameworkCore.DbSet<T> _dbSet;
+        private readonly DbSet<T> _dbSet;
 
         public BaseRepository()
         {
@@ -49,89 +50,62 @@ namespace DataManagement.Repositories.Implementations
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task SoftRemoveRelated(T entity)
+        public async Task SoftRemove(T entity)
         {
-            entity.Updated = DateTime.Now;
-            entity.Deleted = DateTime.Now;
-            _dbSet.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-
-            var foreignKeys = _databaseContext.Model.FindEntityType(typeof(T))
-                .GetNavigations();
-
-            foreach (var fk in foreignKeys)
-            {
-                var relatedRecord = _dbSet.Entry(entity)
-              .Reference(fk).TargetEntry;
-
-                await relatedRecord.ReloadAsync();
-
-                relatedRecord.CurrentValues.SetValues(new Dictionary<string, object> { { "Updated", DateTime.UtcNow }, { "Deleted", DateTime.Now } });
-
-                relatedRecord.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                _databaseContext.Update(relatedRecord.Entity);
-            }
-
+            MarkSoftDeleted(entity);
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task SoftRemoveRelated(T entity, string[] relatedEntities = null)
+        /// <summary>
+        /// Soft-deletes the entity and all related <see cref="BaseEntity"/> navigations that are loaded.
+        /// </summary>
+        public async Task SoftRemoveRelated(T entity)
         {
-            entity.Updated = DateTime.Now;
-            entity.Deleted = DateTime.Now;
-            _dbSet.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await SoftRemoveRelated(entity, relatedEntityNames: null);
+        }
 
-            var checkEntity = _databaseContext.Model.FindEntityType(typeof(T));
+        /// <summary>
+        /// Soft-deletes the entity and optionally only the named related navigations.
+        /// Pass <paramref name="relatedEntityNames"/> null to include every navigation.
+        /// </summary>
+        public async Task SoftRemoveRelated(T entity, string[]? relatedEntityNames = null)
+        {
+            MarkSoftDeleted(entity);
 
-            if (checkEntity == null)
+            var entityType = _databaseContext.Model.FindEntityType(typeof(T))
+                ?? throw new InvalidOperationException($"Entity type {typeof(T).Name} is not part of the model.");
+
+            foreach (var navigation in entityType.GetNavigations())
             {
-                throw new Exception("Entity not found");
-            }
-            var foreignKeys = checkEntity.GetNavigations();
-
-            if (foreignKeys.Any())
-            {
-                foreach (var fk in foreignKeys)
+                if (relatedEntityNames != null && !relatedEntityNames.Contains(navigation.Name))
                 {
-                    if (relatedEntities.Contains(fk.Name))
+                    continue;
+                }
+
+                var entry = _dbSet.Entry(entity);
+
+                if (navigation.IsCollection)
+                {
+                    await entry.Collection(navigation.Name).LoadAsync();
+                    var collection = entry.Collection(navigation.Name).CurrentValue;
+                    if (collection == null)
                     {
-                        var relatedEntityType = fk.ClrType.Name;
+                        continue;
+                    }
 
-                        if (relatedEntityType.Contains("List") || relatedEntityType.Contains("Array"))
-                        {
-                            var collections = _dbSet.Entry(entity)
-                                .Collections;
-
-                            if (collections.Any())
-                            {
-                                foreach (var internalCollectionValue in collections.Select(p => p.CurrentValue))
-                                {
-                                    if (internalCollectionValue != null)
-                                    {
-                                        foreach (var value in internalCollectionValue)
-                                        {
-                                            var rlEntity = ((BaseEntity)value);
-                                            rlEntity.Updated = DateTime.Now;
-                                            rlEntity.Deleted = DateTime.Now;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var relatedRecord = _dbSet.Entry(entity)
-                                .Reference(fk).TargetEntry;
-
-                            if (relatedRecord != null)
-                            {
-                                await relatedRecord.ReloadAsync();
-
-                                relatedRecord.CurrentValues.SetValues(new Dictionary<string, object> { { "Updated", DateTime.UtcNow }, { "Deleted", DateTime.Now } });
-                                relatedRecord.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-
-                                _databaseContext.Update(relatedRecord.Entity);
-                            }
-                        }
+                    foreach (var related in collection.OfType<BaseEntity>())
+                    {
+                        MarkSoftDeleted(related);
+                    }
+                }
+                else
+                {
+                    await entry.Reference(navigation.Name).LoadAsync();
+                    var relatedEntry = entry.Reference(navigation.Name).TargetEntry;
+                    if (relatedEntry?.Entity is BaseEntity relatedEntity)
+                    {
+                        MarkSoftDeleted(relatedEntity);
+                        relatedEntry.State = EntityState.Modified;
                     }
                 }
             }
@@ -139,21 +113,21 @@ namespace DataManagement.Repositories.Implementations
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task SoftRemove(T entity)
-        {
-            entity.Updated = DateTime.Now;
-            entity.Deleted = DateTime.Now;
-            _dbSet.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-
-            await _databaseContext.SaveChangesAsync();
-        }
-
         public void Detach(T entity)
         {
             if (entity == null)
+            {
                 return;
+            }
 
-            _databaseContext.Entry(entity).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            _databaseContext.Entry(entity).State = EntityState.Detached;
+        }
+
+        private static void MarkSoftDeleted(BaseEntity entity)
+        {
+            var now = DateTime.UtcNow;
+            entity.Updated = now;
+            entity.Deleted = now;
         }
     }
 }

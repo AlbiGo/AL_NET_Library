@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 
 namespace AdvancedFeatures.Expressions
 {
@@ -11,27 +6,58 @@ namespace AdvancedFeatures.Expressions
     {
         public static Expression<Func<int, int, int>> CreateExpressionTreeFromLambdaExpression()
         {
-            Expression<Func<int, int, int>> sumExpressionTree = (int number1, int number2) => number1 + number2;
+            Expression<Func<int, int, int>> sumExpressionTree = (number1, number2) => number1 + number2;
             return sumExpressionTree;
         }
 
+        /// <summary>
+        /// Builds a filter expression suitable for IQueryable providers (e.g. EF Core).
+        /// Prefer composing Where clauses when optional filters should stay SQL-translatable.
+        /// </summary>
         public static Expression<Func<Student, bool>> CreateExpressionTreeFromFilter(StudentFilter filter)
         {
-            Expression<Func<Student,bool>> filterExp;
+            var age = filter.Age;
+            var email = filter.Email;
+            var fullName = filter.FullName;
 
-  
-            filterExp = p => (filter.Age == null ? true : p.Age >= filter.Age) &&
-                             (string.IsNullOrEmpty(filter.Email) ? true : p.Email.Contains(filter.Email)) &&
-                             (string.IsNullOrEmpty(filter.FullName) ? true : p.StudentName.Contains(filter.FullName));
-
-            return filterExp;
+            return p =>
+                (age == null || p.Age >= age) &&
+                (string.IsNullOrEmpty(email) || p.Email.Contains(email)) &&
+                (string.IsNullOrEmpty(fullName) || p.StudentName.Contains(fullName));
         }
 
-        public static IEnumerable<Student> InlineFilter(this IQueryable<Student> query, StudentFilter filter)
+        /// <summary>
+        /// Keeps the expression as an Expression tree so EF can translate it to SQL.
+        /// Do not call <c>.Compile()</c> on IQueryable — that forces client-side evaluation.
+        /// </summary>
+        public static IQueryable<Student> InlineFilter(this IQueryable<Student> query, StudentFilter filter)
         {
-            var filterExp = CreateExpressionTreeFromFilter(filter);
-            var filteredQuery = query.Where(filterExp.Compile());
-            return filteredQuery;
+            return query.Where(CreateExpressionTreeFromFilter(filter));
+        }
+
+        /// <summary>
+        /// Alternative style: apply each optional criterion as its own Where (often clearer for EF).
+        /// </summary>
+        public static IQueryable<Student> FilterBy(this IQueryable<Student> query, StudentFilter filter)
+        {
+            if (filter.Age is int age)
+            {
+                query = query.Where(p => p.Age >= age);
+            }
+
+            if (!string.IsNullOrEmpty(filter.Email))
+            {
+                var email = filter.Email;
+                query = query.Where(p => p.Email.Contains(email));
+            }
+
+            if (!string.IsNullOrEmpty(filter.FullName))
+            {
+                var fullName = filter.FullName;
+                query = query.Where(p => p.StudentName.Contains(fullName));
+            }
+
+            return query;
         }
     }
 }

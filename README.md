@@ -1,66 +1,47 @@
-# C# / .NET Library
+# C# / .NET best practices
 
-A collection of C# / .NET examples covering software engineering concepts, patterns, and techniques.
-
-The project is still growing. Contributions are welcome once the library is in good shape for sharing more widely.
-
-## Contents (in solution)
-
-Projects under [AL_NET_Library.sln](AL_NET_Library.sln), grouped by topic:
-
-| Solution folder | Projects |
-| --- | --- |
-| **Patterns** | `DesignPatterns`, `SOLID` |
-| **Data** | `DataManagement`, `EntityFrameworkTraining`, `AuditEntry`, `LINQ`, `Logging` |
-| **Concurrency** | `Threads`, `Memory_Span` (placeholder), `Parallell` (placeholder) |
-| **Architecture** | `DependencyInjection`, `AdvancedFeatures` |
-| **Fundamentals** | `Exceptions` |
-
-`Memory_Span` and `Parallell` are stubs kept in the solution as placeholders for future examples.
-
-## On disk / not in solution (WIP)
-
-These folders exist in the repo but are **not** added to the solution yet:
-
-- `Training`
-- `CarServices`
-- `GarbageCollector`
-- `AsynchronousProgramming`
-- `MultithreadingAndConcurrency`
-- `DependencyInjectionOld`
-- `Solid Principles`
-
-## Planned (not started)
-
-- Algorithms
-- Unit testing examples (NUnit / MSTest)
-- Additional design patterns (e.g. Observer, structural patterns)
-
-## Contributing
-
-1. Always use branching and PRs.
-2. All development must start from the `dev` branch.
-3. Use descriptive branch naming: `username/(feature|bug|fix|new)/branch-name-unique-code`
-4. Be professional on PR comments.
-
-## Getting started
+Curated guides and runnable samples for modern C# development.  
+**Docs define the rules; sample projects prove them.**
 
 ```bash
 git clone https://github.com/AlbiGo/AL_NET_Library.git
+dotnet build AL_NET_Library.sln
 ```
 
-Open `AL_NET_Library.sln` in Visual Studio or another C# IDE, then explore the project folders and comments in the code.
+Requires **.NET SDK 8.0+** (CI builds with 8.0).
 
-### Requirements
+## Start here
 
-- .NET SDK 6.0 or later (CI builds with .NET 8.0)
-- Visual Studio or any IDE that supports C# development
+1. Read the [best practices guide](docs/README.md)
+2. Open `AL_NET_Library.sln`
+3. Run a sample: `dotnet run --project DesignPatterns`
+
+## Solution samples
+
+| Folder | Focus |
+| --- | --- |
+| **Patterns** | `DesignPatterns`, `SOLID` |
+| **Data** | `DataManagement`, `EntityFrameworkTraining`, `AuditEntry`, `LINQ`, `Logging` |
+| **Concurrency** | `Threads` |
+| **Architecture** | `DependencyInjection`, `AdvancedFeatures` |
+| **Fundamentals** | `Exceptions` |
+
+## Tooling
+
+- [`.editorconfig`](.editorconfig) — naming and code style
+- [`Directory.Build.props`](Directory.Build.props) — nullable, analyzers, shared defaults
+
+## Archive
+
+Unfinished historical code lives in [`_archive/`](_archive/) and is **not** part of the solution. Do not treat it as recommended practice.
+
+## Contributing
+
+1. Branch from `dev` and open a PR
+2. Use descriptive branch names: `username/(feature|bug|fix|new)/description-id`
+3. Prefer adding Prefer/Avoid notes in `docs/` when you change sample guidance
+4. Keep sample projects buildable under .NET 8
 
 ## License
 
-This project is licensed under the MIT License — see the LICENSE file for details.
-
-## Acknowledgments
-
-- [C# documentation](https://learn.microsoft.com/dotnet/csharp/)
-- Stack Overflow and community resources for .NET development challenges
+MIT — see the LICENSE file for details.

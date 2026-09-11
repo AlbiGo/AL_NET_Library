@@ -1,0 +1,7 @@
+# Archived projects are not best-practice samples; skip analyzer enforcement.
+<Project>
+  <PropertyGroup>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+</Project>

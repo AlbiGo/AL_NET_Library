@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdvancedFeatures.Generics.Implementation.Data
+﻿namespace AdvancedFeatures.Generics.Implementation.Data
 {
     public class Data1 : MainData
     {
         public double Economics { get; set; }
+
+        public override void Calculate()
+        {
+            Economics = 1 + 3;
+            MainEconomics = Economics * 22;
+        }
     }
 }

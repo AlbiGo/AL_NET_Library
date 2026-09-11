@@ -1,2 +1,2 @@
-﻿select * from Entity1s
-where Name like '%@nameParam%' 
+﻿SELECT * FROM Entity1s
+WHERE Name LIKE @nameParam

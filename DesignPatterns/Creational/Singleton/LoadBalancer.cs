@@ -1,15 +1,18 @@
 ﻿namespace DesignPatterns.Creational.Singleton
 {
+    /// <summary>
+    /// Eager Singleton: the instance is created when the type is loaded.
+    /// No lock is needed because the CLR guarantees type initialization is thread-safe.
+    /// </summary>
     public class LoadBalancer
     {
-        private static LoadBalancer? instance = new LoadBalancer();
-        private static readonly object locker = new object();
-        private readonly List<Server> servers;
-        private readonly Random random = new Random();
+        private static readonly LoadBalancer Instance = new LoadBalancer();
+        private readonly List<Server> _servers;
+        private readonly Random _random = new Random();
 
         private LoadBalancer()
         {
-            servers = new List<Server>
+            _servers = new List<Server>
             {
                 new Server { Name = "ServerI", IP = "120.14.220.18" },
                 new Server { Name = "ServerII", IP = "120.14.220.19" },
@@ -19,38 +22,18 @@
             };
         }
 
-        public static LoadBalancer GetLoadBalancer()
-        {
-            // Support multithreaded applications through
-            // 'Double checked locking' pattern which (once
-            // the instance exists) avoids locking each
-            // time the method is invoked
-            if (instance == null)
-            {
-                lock (locker)
-                {
-                    if (instance == null)
-                    {
-                        instance = new LoadBalancer();
-                    }
-                }
-            }
-            return instance;
-        }
+        public static LoadBalancer GetLoadBalancer() => Instance;
 
         public Server Server
         {
             get
             {
-                int r = random.Next(servers.Count);
-                return servers[r];
+                int r = _random.Next(_servers.Count);
+                return _servers[r];
             }
         }
     }
 
-    /// <summary>
-    /// Represents a server machine
-    /// </summary>
     public class Server
     {
         public string? Name { get; set; }

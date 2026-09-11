@@ -36,8 +36,20 @@ static void RunSingletonDemo()
     var first = Singleton.GetInstance("FOO");
     var second = Singleton.GetInstance("BAR");
     Console.WriteLine($"First value: {first.Value}");
-    Console.WriteLine($"Second value: {second.Value}");
+    Console.WriteLine($"Second value: {second.Value} (second call does not overwrite)");
     Console.WriteLine($"Same instance: {ReferenceEquals(first, second)}");
+
+    // Concurrent callers still share one instance (double-checked locking).
+    Singleton? fromThreadA = null;
+    Singleton? fromThreadB = null;
+    var threadA = new Thread(() => fromThreadA = Singleton.GetInstance("A"));
+    var threadB = new Thread(() => fromThreadB = Singleton.GetInstance("B"));
+    threadA.Start();
+    threadB.Start();
+    threadA.Join();
+    threadB.Join();
+    Console.WriteLine($"Same instance across threads: {ReferenceEquals(fromThreadA, fromThreadB)}");
+    Console.WriteLine($"LoadBalancer (eager singleton) server: {LoadBalancer.GetLoadBalancer().Server.Name}");
     Console.WriteLine();
 }
 

@@ -1,49 +1,91 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
+using System.Data.Common;
 
 namespace DataManagement.Queries
 {
+    /// <summary>
+    /// Loads SQL from files and binds parameters without string concatenation/replacement.
+    /// </summary>
     public static class QueryBuilder
     {
-        public static string BuildQuery(string queryName, List<Param> queryParams = null, string path = null)
+        public static BuiltQuery BuildQuery(string queryName, IEnumerable<Param>? queryParams = null, string? path = null)
         {
-            var query = path == null ? File.ReadAllText(@$"../../../QueryHelper/Queries/{queryName}.sql") : path + $"/{queryName}.sql";
+            var filePath = path == null
+                ? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "QueryHelper", "Queries", $"{queryName}.sql"))
+                : Path.Combine(path, $"{queryName}.sql");
 
-            if (queryParams != null && queryParams.Any())
+            var sql = File.ReadAllText(filePath);
+            var parameters = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+
+            if (queryParams != null)
             {
-                foreach (var p in queryParams)
+                foreach (var param in queryParams.Where(p => p != null))
                 {
-                    if (p != null)
+                    if (string.IsNullOrWhiteSpace(param!.Name))
                     {
-                        switch (p.ParamType)
-                        {
-                            case ParamType.Int
-                                :
-                                {
-                                    query = query.Replace(p.Name, p.Value);
-                                    break;
-                                }
-                            case ParamType.String
-                               :
-                                {
-                                    query = query.Replace(p.Name, $"{p.Value}");
-                                    break;
-                                }
-                        }
+                        continue;
                     }
+
+                    // Keep the placeholder in SQL (e.g. @nameParam); bind the value separately.
+                    parameters[param.Name] = ConvertValue(param);
                 }
             }
-            return query;
+
+            return new BuiltQuery(sql, parameters);
         }
+
+        public static DbCommand CreateCommand(DbConnection connection, BuiltQuery query)
+        {
+            var command = connection.CreateCommand();
+            command.CommandText = query.Sql;
+            command.CommandType = CommandType.Text;
+
+            foreach (var pair in query.Parameters)
+            {
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = pair.Key.StartsWith("@", StringComparison.Ordinal)
+                    ? pair.Key
+                    : "@" + pair.Key;
+                parameter.Value = pair.Value ?? DBNull.Value;
+                command.Parameters.Add(parameter);
+            }
+
+            return command;
+        }
+
+        private static object? ConvertValue(Param param)
+        {
+            if (param.Value == null)
+            {
+                return null;
+            }
+
+            return param.ParamType switch
+            {
+                ParamType.Int => int.Parse(param.Value),
+                ParamType.Double => double.Parse(param.Value),
+                ParamType.String => param.Value,
+                _ => param.Value
+            };
+        }
+    }
+
+    public sealed class BuiltQuery
+    {
+        public BuiltQuery(string sql, IReadOnlyDictionary<string, object?> parameters)
+        {
+            Sql = sql;
+            Parameters = parameters;
+        }
+
+        public string Sql { get; }
+        public IReadOnlyDictionary<string, object?> Parameters { get; }
     }
 
     public class Param
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Value { get; set; }
         public ParamType ParamType { get; set; }
     }
 
@@ -56,37 +98,8 @@ namespace DataManagement.Queries
 
     public class Query
     {
-        public string Name { get; set; }
-        public string Body { get; set; }
-        public Dictionary<string, string> Params { get; set; } = new Dictionary<string, string>();
+        public string Name { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
+        public Dictionary<string, string> Params { get; set; } = new();
     }
-
-    //String connectionString = dbContext.Database.GetConnectionString();
-    //System.Data.SQLite.SQLiteConnection conn = new System.Data.SQLite.SQLiteConnection(connectionString);
-
-    //var query = QueryBuilder.BuildQuery("Entity1_query", new List<Param>() { new Param() { Name = "@nameParam", ParamType = ParamType.String, Value = "te" } });
-
-    //System.Data.SQLite.SQLiteCommand cmd = new System.Data.SQLite.SQLiteCommand(query);
-    //cmd.Connection = conn;
-
-    //conn.Open();
-    //cmd.ExecuteScalar();
-    //SQLiteDataAdapter da = new SQLiteDataAdapter(cmd);
-    //System.Data.DataSet ds = new System.Data.DataSet();
-
-    //da.Fill(ds);
-
-    //foreach (DataTable myTable in ds.Tables)
-    //{
-    //    foreach (DataRow myRow in myTable.Rows)
-    //    {
-    //        foreach (DataColumn myColumn in myTable.Columns)
-    //        {
-    //            Console.Write(myRow[myColumn] + "\t");
-    //        }
-    //        Console.WriteLine();
-    //    }
-    //    Console.WriteLine();
-    //}
-    //Console.ReadLine();
 }

@@ -1,25 +1,32 @@
 # Design Patterns
 
-Console demos for common design patterns. Run from the repo root:
+Best-practice demos for common creational and behavioral patterns.
 
 ```bash
 dotnet run --project DesignPatterns
 ```
 
-Toggle demos in `Program.cs` by commenting out any `Run*Demo()` call you do not want.
+Comment out any `Run*Demo()` call in `Program.cs` to focus on one pattern.
 
-## Implemented
+## Do
 
-| Category | Pattern | Location |
-| --- | --- | --- |
-| Creational | Singleton | `Creational/Singleton` |
-| Creational | Factory Method | `Creational/Factory Method` |
-| Creational | Abstract Factory | `Creational/Abstract Factory` |
-| Creational | Builder | `Creational/Builder` |
-| Behavioral | Strategy | `Behavioral/Strategy` |
+| Pattern | Practice highlighted |
+| --- | --- |
+| Singleton | Double-checked locking; value set only on first create; eager singleton via `LoadBalancer` |
+| Factory Method | Subclasses decide which products to create (`Resume` / `Report`) |
+| Abstract Factory | Families of related products (`HerbivoreFactory` / `CarnivoreFactory`) |
+| Builder | Stepwise construction via `Shop` + `CarBuilder` |
+| Strategy | Swap tax algorithms through `TaxCalculateContext` |
+
+## Don’t
+
+- Use Singleton for everything that “feels global” — prefer DI lifetimes when you have a container
+- Copy unlocked lazy singletons into multithreaded production code
+
+## Guide
+
+See [docs/06-solid-and-patterns.md](../docs/06-solid-and-patterns.md).
 
 ## Planned
 
-- Behavioral: Mediator
-- Creational: Prototype
-- Structural patterns (Adapter, Decorator, Facade, etc.)
+- Mediator, Prototype, structural patterns (Adapter, Decorator, Facade)

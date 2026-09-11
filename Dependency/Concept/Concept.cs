@@ -3,7 +3,6 @@
     public interface IClassA
     {
         void MethodA();
-
         void MethodA2();
     }
 
@@ -19,7 +18,6 @@
         }
 
         public void MethodA() => _classB.MethodB();
-
         public void MethodA2() => _classB2.MethodB2();
     }
 
@@ -53,31 +51,56 @@
         }
 
         public void MethodA() => _classA.MethodA();
-
         public void Method2() => _classA.MethodA2();
     }
 
+    /// <summary>
+    /// Minimal teaching service locator. Prefer constructor injection via a real container
+    /// (see <c>AppServices</c> in Dependency.Implementation) for application code.
+    /// </summary>
     public static class DependencyInjectionProvider
     {
-        private static readonly Dictionary<Type, Func<object>> _services = new();
+        private static readonly Dictionary<Type, Func<object>> Services = new();
 
-        public static void Register<TService, TImplementation>() where TImplementation : TService
+        public static void Register<TService>(Func<TService> factory) where TService : class
         {
-            _services[typeof(TService)] = () => Activator.CreateInstance(typeof(TImplementation));
+            Services[typeof(TService)] = () => factory();
+        }
+
+        public static void Register<TService, TImplementation>()
+            where TImplementation : class, TService
+        {
+            Services[typeof(TService)] = () =>
+            {
+                // Prefer a parameterless constructor; otherwise resolve ctor args from the registry.
+                var ctors = typeof(TImplementation).GetConstructors();
+                var ctor = ctors.OrderByDescending(c => c.GetParameters().Length).First();
+                var args = ctor.GetParameters()
+                    .Select(p => Resolve(p.ParameterType))
+                    .ToArray();
+                return Activator.CreateInstance(typeof(TImplementation), args)
+                       ?? throw new InvalidOperationException($"Could not create {typeof(TImplementation).Name}.");
+            };
         }
 
         public static void Register<T>() where T : class
         {
-            _services[typeof(T)] = () => Activator.CreateInstance(typeof(T));
+            Register<T, T>();
         }
 
         public static TService Resolve<TService>()
         {
-            if (_services.ContainsKey(typeof(TService)))
+            return (TService)Resolve(typeof(TService));
+        }
+
+        private static object Resolve(Type serviceType)
+        {
+            if (Services.TryGetValue(serviceType, out var factory))
             {
-                return (TService)_services[typeof(TService)]();
+                return factory();
             }
-            throw new InvalidOperationException($"Service of type {typeof(TService)} is not registered.");
+
+            throw new InvalidOperationException($"Service of type {serviceType.Name} is not registered.");
         }
     }
 }

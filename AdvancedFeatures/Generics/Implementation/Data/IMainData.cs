@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdvancedFeatures.Generics.Implementation.Data
+﻿namespace AdvancedFeatures.Generics.Implementation.Data
 {
     public interface IMainData
     {
-        public double MainEconimics { get; set; }
+        double MainEconomics { get; set; }
+        void Calculate();
     }
 }

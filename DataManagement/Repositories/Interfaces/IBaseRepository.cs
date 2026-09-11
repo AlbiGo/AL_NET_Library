@@ -13,6 +13,6 @@ namespace DataManagement.Repositories.Interfaces
         public IQueryable<T> CustomQuery();
         public Task Add(T entity);
         public Task SoftRemove(T entity);
-        public Task SoftRemoveRelated(T entity, string[] relatedEntities = null);
+        public Task SoftRemoveRelated(T entity, string[]? relatedEntities = null);
     }
 }

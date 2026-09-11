@@ -1,97 +1,57 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Authentication.ExtendedProtection;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Dependency.Implementation
 {
     /// <summary>
-    /// Infrastructure that is used to register classes for dependency injection
+    /// Composition root: registers services once and reuses a single ServiceProvider.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class DependencyInjection<T> where T : class
+    public static class AppServices
     {
-        //private MathDBContext<T>? _mathDBContext;
-        //private Repositories<T>? _repositories;
-        //private Services<T>? _services;
-        private static ServiceCollection _serviceCollection;
-        ////Inject Repositories
-        //public Repositories<T> DbIBudRepos => _repositories ??= new Repositories<T>(this);
+        private static readonly object Sync = new object();
+        private static ServiceProvider? _provider;
 
-        ////Inject Services
-        //public Services<T> DbIServices => _services ??= new Services<T>(this);
+        public static void Configure(Action<IServiceCollection>? configure = null)
+        {
+            lock (Sync)
+            {
+                if (_provider != null)
+                {
+                    return;
+                }
 
-        ////Inject Database Context
-        //public MathDBContext<T> MathDBContext => _mathDBContext ?? new MathDBContext<T>();
+                var services = new ServiceCollection();
+                services.AddScoped<MathDBContext>();
+                services.AddScoped<IMathRepo, MathRepo>();
+                services.AddScoped<IMathService, MathService>();
+                services.AddTransient<EconomicsController>();
+                configure?.Invoke(services);
+
+                _provider = services.BuildServiceProvider();
+            }
+        }
+
+        public static T GetRequiredService<T>() where T : notnull
+        {
+            if (_provider == null)
+            {
+                Configure();
+            }
+
+            return _provider!.GetRequiredService<T>();
+        }
 
         /// <summary>
-        /// Create dependency instance
+        /// Creates a scope for resolving scoped services (DbContext, repos, etc.).
+        /// Dispose the scope when the unit of work is finished.
         /// </summary>
-        /// <returns> Create dependency instance</returns>
-        public static void InitializeDI()
+        public static IServiceScope CreateScope()
         {
-            _serviceCollection = new ServiceCollection();
+            if (_provider == null)
+            {
+                Configure();
+            }
 
-            _serviceCollection.AddScoped<MathDBContext>();
-            _serviceCollection.AddScoped<IMathRepo, MathRepo>();
-            _serviceCollection.AddScoped<IMathService, MathService>();
+            return _provider!.CreateScope();
         }
-
-        public static dynamic GetService()
-        {
-            //Initialize DI
-            InitializeDI();
-
-            // Build the service provider
-            var serviceProvider = _serviceCollection.BuildServiceProvider();
-
-            // Resolve the consumer class
-            var _service = serviceProvider.GetRequiredService<T>();
-
-            return _service;
-        }
-
     }
-
-    ///// <summary>
-    ///// Repositories
-    ///// </summary>
-    ///// <typeparam name="T"></typeparam>
-    //public class Repositories<T> where T : class
-    //{
-    //    private DependencyInjection<T> _DependencyInjection { get; }
-
-    //    public Repositories(DependencyInjection<T> DependencyInjection) => _DependencyInjection = DependencyInjection;
-
-    //    #region Repositories
-
-    //    public IMathRepo<T> MathRepository => new MathRepo<T>(_DependencyInjection.MathDBContext);
-
-    //    #endregion
-    //}
-
-    ///// <summary>
-    ///// Services
-    ///// </summary>
-    ///// <typeparam name="T"></typeparam>
-    //public class Services<T> where T : class
-    //{
-    //    private DependencyInjection<T> _DependencyInjection { get; }
-
-    //    public Services(DependencyInjection<T> DependencyInjection)
-    //    {
-    //        _DependencyInjection = DependencyInjection;
-    //    }
-
-    //    #region Services
-
-    //    public IMathService<T> MathService => new MathService<T>(_DependencyInjection.DbIBudRepos.MathRepository);
-
-    //    #endregion
-    //}
 }

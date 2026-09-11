@@ -3,121 +3,103 @@ using DataManagement.Entities;
 
 namespace LINQ.Lamda
 {
-    // Class containing methods for performing various Lambda queries on Entity1 data.
     public class LamdaMethods
     {
-        // Private field for accessing the database context.
         private readonly DatabaseContext _dbContext;
 
-        // Constructor that initializes the database context.
         public LamdaMethods()
         {
             _dbContext = new DatabaseContext();
         }
 
-        // Method to get all records from Entity1 without any filtering or pagination.
         public IQueryable<Entity1> GetAll()
         {
-            // Return all records of Entity1 as an IQueryable to allow further querying.
-            return _dbContext.Entity1s
-                .AsQueryable();
+            return _dbContext.Entity1s.AsQueryable();
         }
 
-        // Method to get records from Entity1 with pagination support.
-        // page: Current page (default is 1), size: Number of records per page (default is 10).
+        /// <summary>
+        /// page is 1-based; size is page size.
+        /// </summary>
         public IQueryable<Entity1> GetAllPagination(int page = 1, int size = 10)
         {
-            // Apply Skip (for pagination) and Take (to limit the number of records).
+            if (page < 1) page = 1;
+            if (size < 1) size = 10;
+
             return _dbContext.Entity1s
-                .Skip((page - 1) * size)  // Corrected page index for 0-based pagination.
-                .Take(size)               // Take the specified number of records.
-                .AsQueryable();
+                .Skip((page - 1) * size)
+                .Take(size);
         }
 
-        // Method to filter records based on the provided entity filter.
-        // entityFilter: Contains the criteria for filtering records (e.g., Name, page, and size).
         public IQueryable<Entity1> GetWhere(EntityFilter entityFilter)
         {
-            // Start with the Entity1 table as the base query.
-            var query = _dbContext.Entity1s
-                .AsQueryable();
+            var query = _dbContext.Entity1s.AsQueryable();
 
-            // Apply a filter for the Name field if it's not empty.
-            if (entityFilter.Name != string.Empty)
+            if (!string.IsNullOrWhiteSpace(entityFilter.Name))
             {
                 query = query.Where(p => p.Name.Contains(entityFilter.Name));
             }
 
-            // Apply pagination to the query based on the filter's page and size values.
-            return query.Skip(entityFilter.Page)   // Skip records based on page.
-                .Take(entityFilter.Size);           // Take the number of records defined by size.
+            return ApplyPagination(query, entityFilter);
         }
 
-        // Method to join Entity1 with Entity2 and select specific fields to return. This performs a
-        // LINQ join operation between Entity1 and Entity2 on their ID fields.
         public IQueryable<Entity1WithRelationshipDTO> GetJoin()
         {
-            // Perform the join between Entity1 and Entity2 based on matching Entity2ID and Id fields.
-            var query = _dbContext.Entity1s.Join(_dbContext.Entity2s,
-                x => x.Entity2ID, // Key from Entity1.
-                y => y.Id,        // Key from Entity2.
-                (x, y) => (x))    // Select Entity1, joined with matching Entity2.
-                .Select(x => new Entity1WithRelationshipDTO
-                {
-                    Entity1Name = x.Name,            // Project Name from Entity1.
-                    ID = x.Id,                       // Project ID from Entity1.
-                    Entity2Name = x.Entity2.Name     // Project Name from related Entity2.
-                });
-
-            // Return the result of the join operation as a queryable.
-            return query;
+            return _dbContext.Entity1s
+                .Join(
+                    _dbContext.Entity2s,
+                    entity1 => entity1.Entity2ID,
+                    entity2 => entity2.Id,
+                    (entity1, entity2) => new Entity1WithRelationshipDTO
+                    {
+                        ID = entity1.Id,
+                        Entity1Name = entity1.Name,
+                        Entity2Name = entity2.Name
+                    });
         }
 
-        // Method to join Entity1 with Entity2 and select specific fields to return wtih filter.
-        // This performs a LINQ join operation between Entity1 and Entity2 on their ID fields.
         public IQueryable<Entity1WithRelationshipDTO> GetJoinWithFilter(EntityFilter entityFilter)
         {
-            var query = _dbContext.Entity1s
-                .AsQueryable();
+            var query = _dbContext.Entity1s.AsQueryable();
 
-            //Filtering
-            if (entityFilter.Name != null)
+            if (!string.IsNullOrWhiteSpace(entityFilter.Name))
             {
                 query = query.Where(p => p.Name.Contains(entityFilter.Name));
             }
 
-            // Perform the join between Entity1 and Entity2 based on matching Entity2ID and Id fields.
-            var result = query.Join(_dbContext.Entity2s,
-                x => x.Entity2ID, // Key from Entity1.
-                y => y.Id,        // Key from Entity2.
-                (x, y) => (x))    // Select Entity1, joined with matching Entity2.
-                .Select(x => new Entity1WithRelationshipDTO
+            var joined = query.Join(
+                _dbContext.Entity2s,
+                entity1 => entity1.Entity2ID,
+                entity2 => entity2.Id,
+                (entity1, entity2) => new Entity1WithRelationshipDTO
                 {
-                    Entity1Name = x.Name,            // Project Name from Entity1.
-                    ID = x.Id,                       // Project ID from Entity1.
-                    Entity2Name = x.Entity2.Name     // Project Name from related Entity2.
-                })
-                .Skip(entityFilter.Page)
-                .Take(entityFilter.Size);
+                    ID = entity1.Id,
+                    Entity1Name = entity1.Name,
+                    Entity2Name = entity2.Name
+                });
 
-            // Return the filtered result of the join operation as a queryable.
-            return result;
+            return ApplyPagination(joined, entityFilter);
+        }
+
+        private static IQueryable<T> ApplyPagination<T>(IQueryable<T> query, EntityFilter filter)
+        {
+            var page = filter.Page < 1 ? 1 : filter.Page;
+            var size = filter.Size < 1 ? 10 : filter.Size;
+            return query.Skip((page - 1) * size).Take(size);
         }
     }
 
-    // DTO class for transferring data between Entity1 and Entity2 in a joined result.
     public class Entity1WithRelationshipDTO
     {
-        public int ID { get; set; }          // ID of Entity1.
-        public string Entity1Name { get; set; }  // Name from Entity1.
-        public string Entity2Name { get; set; }  // Name from related Entity2.
+        public int ID { get; set; }
+        public string? Entity1Name { get; set; }
+        public string? Entity2Name { get; set; }
     }
 
-    // Filter class used to pass filtering and pagination options.
     public class EntityFilter
     {
-        public string Name { get; set; }  // Name filter for searching entities.
-        public int Page { get; set; }     // Page number for pagination.
-        public int Size { get; set; }     // Number of records per page for pagination.
+        public string? Name { get; set; }
+        /// <summary>1-based page number.</summary>
+        public int Page { get; set; } = 1;
+        public int Size { get; set; } = 10;
     }
 }
