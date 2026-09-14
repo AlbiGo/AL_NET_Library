@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AdvancedFeatures\AdvancedFeatures.csproj" />
-    <ProjectReference Include="..\DesignPatterns\DesignPatterns.csproj" />
+    <ProjectReference Include="..\..\samples\AdvancedFeatures\AdvancedFeatures.csproj" />
+    <ProjectReference Include="..\..\samples\DesignPatterns\DesignPatterns.csproj" />
   </ItemGroup>
 
   <ItemGroup>

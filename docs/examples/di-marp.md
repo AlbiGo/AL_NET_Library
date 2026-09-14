@@ -9,7 +9,7 @@ paginate: true
 
 Build once. Inject via constructors. Scope what must be scoped.
 
-**Sample:** `Dependency/`  
+**Sample:** `samples/Dependency/`  
 **Guide:** `docs/02-dependency-injection.md`
 
 ---
@@ -36,7 +36,7 @@ Build once. Inject via constructors. Scope what must be scoped.
 # See it run
 
 ```bash
-dotnet run --project Dependency
+dotnet run --project samples/Dependency
 ```
 
 | Type | Role |

@@ -1,30 +1,39 @@
 # C# / .NET best practices
 
 Curated guides and runnable samples for modern C# development.  
-**Docs define the rules; sample projects prove them.**
+**Docs define the rules; samples prove them.**
+
+```text
+docs/        Prefer / Avoid guides (curriculum)
+samples/     Runnable projects (one topic each)
+_archive/    Historical / unfinished (not in the solution)
+```
 
 ```bash
 git clone https://github.com/AlbiGo/AL_NET_Library.git
 dotnet build AL_NET_Library.sln
+dotnet run --project samples/DesignPatterns
 ```
 
 Requires **.NET SDK 8.0+** (CI builds with 8.0).
 
 ## Start here
 
-1. Read the [best practices guide](docs/README.md)
-2. Open `AL_NET_Library.sln`
-3. Run a sample: `dotnet run --project DesignPatterns`
+1. Read the [best practices guide](docs/README.md) — each page explains the **concept** and **how the sample code works**
+2. Open `AL_NET_Library.sln` (projects under **samples**)
+3. Run a sample, e.g. `dotnet run --project samples/Dependency`
 
-## Solution samples
+## Samples (in solution)
 
-| Folder | Focus |
+| Solution folder | Projects |
 | --- | --- |
 | **Patterns** | `DesignPatterns`, `SOLID` |
 | **Data** | `DataManagement`, `EntityFrameworkTraining`, `AuditEntry`, `LINQ`, `Logging` |
 | **Concurrency** | `Threads` |
 | **Architecture** | `DependencyInjection`, `AdvancedFeatures` |
 | **Fundamentals** | `Exceptions` |
+
+See also [samples/README.md](samples/README.md).
 
 ## Tooling
 
@@ -33,7 +42,7 @@ Requires **.NET SDK 8.0+** (CI builds with 8.0).
 
 ## Archive
 
-Unfinished historical code lives in [`_archive/`](_archive/) and is **not** part of the solution. Do not treat it as recommended practice.
+Unfinished historical code lives in [`_archive/`](_archive/) and is **not** part of the solution.
 
 ## Contributing
 

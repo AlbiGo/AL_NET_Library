@@ -9,9 +9,9 @@ Unfinished or historical samples kept for reference. **These are not best-practi
 | `GarbageCollector` | Incomplete GC notes |
 | `AsynchronousProgramming` | Stub |
 | `MultithreadingAndConcurrency` | Stub |
-| `DependencyInjectionOld` | Superseded by `Dependency/` |
-| `Solid Principles` | Duplicate / empty; prefer `SOLID/` |
+| `DependencyInjectionOld` | Superseded by `samples/Dependency/` |
+| `Solid Principles` | Duplicate / empty; prefer `samples/SOLID/` |
 | `Memory_Span` | Placeholder stub removed from the solution |
 | `Parallell` | Placeholder stub (typo in name) removed from the solution |
 
-Prefer the curated samples and guides under `/docs` and the projects still in the solution.
+Prefer the curated guides under [`docs/`](../docs/) and runnable projects under [`samples/`](../samples/).

@@ -1,23 +1,29 @@
 # Naming and style
 
-Code style is enforced by [`.editorconfig`](../.editorconfig) and [`Directory.Build.props`](../Directory.Build.props) (nullable, analyzers, latest analysis level).
+## What it is
+
+Consistent naming and formatting so readers can scan code quickly. Style is enforced by [`.editorconfig`](../.editorconfig) and [`Directory.Build.props`](../Directory.Build.props) (nullable enabled, analyzers on).
+
+## Why it matters
+
+In a teaching repo (and in teams), inconsistent names hide bugs: people misread `async` methods, confuse interfaces with classes, or miss nullability.
+
+## How it shows up in samples
+
+| Rule | Example in this repo |
+| --- | --- |
+| Types / methods PascalCase | `ServiceGarage`, `GetInstance` |
+| Interfaces start with `I` | `IMathService`, `IBaseClassA` |
+| Private fields `_camelCase` | `_car`, `_provider`, `_lockObject` |
+| Async methods end with `Async` | `MakePastaAsync`, `SaveChangesAsync` |
+| Nullable when null is allowed | `string?`, `CarServiceDelegate?` |
 
 ## Prefer
 
-- PascalCase for types, methods, and properties; interfaces prefixed with `I`
-- `_camelCase` for private fields
-- `Async` suffix on async methods (`MakePastaAsync`)
-- Explicit nullability (`string?` when null is allowed)
-- Clear, intention-revealing names over abbreviations (`PrepareIngredients`, not `PrepIngr`)
+- Intention-revealing names (`PrepareIngredients`, not `Prep`)
+- Explicit nullability (`string?` when null is valid)
 
 ## Avoid
 
-- Hungarian notation or cryptic single-letter names outside tiny loop indexes
-- Public mutable static state without a clear lifetime story
-- Disabling nullable or analyzers project-wide without a documented reason
-- Mixing formatting styles across files (let EditorConfig own it)
-
-## See also
-
-- Root [`.editorconfig`](../.editorconfig)
-- [Microsoft C# coding conventions](https://learn.microsoft.com/dotnet/csharp/fundamentals/coding-style/coding-conventions)
+- Disabling nullable/analyzers without a documented reason
+- Mixing formatting styles across files
