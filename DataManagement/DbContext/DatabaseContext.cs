@@ -16,8 +16,8 @@ namespace DataManagement.DbContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var sqlName = "Data Source = DataManagement";
-            optionsBuilder.UseSqlite(sqlName);
+            var dbPath = Path.Combine(AppContext.BaseDirectory, "DataManagement.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

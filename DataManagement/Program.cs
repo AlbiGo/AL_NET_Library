@@ -1,70 +1,56 @@
-﻿// See https://aka.ms/new-console-template for more information
-using DataManagement.DbContext;
+﻿using DataManagement.DbContext;
 using DataManagement.Entities;
+using DataManagement.Queries;
 using DataManagement.Repositories.Implementations;
 using DataManagement.Repositories.Interfaces;
-using System.Data;
 
-Console.WriteLine("Database initialization");
-var dbContext = new DatabaseContext();
-IBaseRepository<Entity1> baseRepository = new BaseRepository<Entity1>();
-IBaseRepository<Entity2> baseRepository2 = new BaseRepository<Entity2>();
-IBaseRepository<Entity3> baseRepository3 = new BaseRepository<Entity3>();
-IBaseRepository<Entity4> baseRepository4 = new BaseRepository<Entity4>();
+Console.WriteLine("=== Data management: soft-delete related ===");
 
-await baseRepository2.Add(new Entity2() { Id = 6, Created = DateTime.Now, Desc = "Test" });
+IBaseRepository<Entity1> entities = new BaseRepository<Entity1>();
+IBaseRepository<Entity2> related = new BaseRepository<Entity2>();
+IBaseRepository<Entity3> children3 = new BaseRepository<Entity3>();
+IBaseRepository<Entity4> children4 = new BaseRepository<Entity4>();
 
-await baseRepository.Add(new Entity1() { Id = 1, Created = DateTime.Now, Name = "Test", Entity2ID = 6 });
+await related.Add(new Entity2 { Id = 6, Created = DateTime.UtcNow, Name = "Related", Desc = "Test" });
+await entities.Add(new Entity1 { Id = 1, Created = DateTime.UtcNow, Name = "Root", Entity2ID = 6 });
+await children3.Add(new Entity3 { Id = 1, Name = "C3-1", Entity1ID = 1 });
+await children3.Add(new Entity3 { Id = 2, Name = "C3-2", Entity1ID = 1 });
+await children4.Add(new Entity4 { Id = 1, Name = "C4-1", Entity1ID = 1 });
+await children4.Add(new Entity4 { Id = 2, Name = "C4-2", Entity1ID = 1 });
 
-await baseRepository3.Add(new Entity3() { Id = 1, Entity1ID = 1 });
-await baseRepository3.Add(new Entity3() { Id = 2, Entity1ID = 1 });
+Console.WriteLine("Before soft deletion:");
+PrintDeletedFlags();
 
-await baseRepository4.Add(new Entity4() { Id = 1, Entity1ID = 1 });
-await baseRepository4.Add(new Entity4() { Id = 2, Entity1ID = 1 });
+var itemToRemove = entities.CustomQueryNT().First(p => p.Id == 1);
+await entities.SoftRemoveRelated(itemToRemove, new[] { "Entity2", "Entity3s", "Entity4s" });
 
-Console.WriteLine("Before soft deletion");
-PrintDB(dbContext);
+Console.WriteLine();
+Console.WriteLine("After soft deletion:");
+PrintDeletedFlags();
 
-Console.WriteLine("-----------------------------------------------------------------------------");
-var itemToRemove = baseRepository.CustomQueryNT()
-    .Where(p => p.Id == 1)
-    .FirstOrDefault();
-
-await baseRepository.SoftRemoveRelated(itemToRemove, new string[] { "Entity2", "Entity3s", "Entity4s" });
-
-Console.WriteLine("After soft deletion");
-PrintDB(dbContext);
-Console.ReadLine();
-
-void PrintDB(DatabaseContext databaseContext)
+Console.WriteLine();
+Console.WriteLine("=== QueryBuilder (SQL + parameters, no string replace) ===");
+var built = QueryBuilder.BuildQuery(
+    "Entity1_query",
+    new List<Param>
+    {
+        new() { Name = "@nameParam", ParamType = ParamType.String, Value = "%Test%" }
+    });
+Console.WriteLine(built.Sql.Trim());
+foreach (var pair in built.Parameters)
 {
-    IBaseRepository<Entity1> baseRepository = new BaseRepository<Entity1>();
-    IBaseRepository<Entity2> baseRepository2 = new BaseRepository<Entity2>();
-    IBaseRepository<Entity3> baseRepository3 = new BaseRepository<Entity3>();
-    IBaseRepository<Entity4> baseRepository4 = new BaseRepository<Entity4>();
+    Console.WriteLine($"  {pair.Key} = {pair.Value}");
+}
 
-    var removedItem = baseRepository.CustomQueryNT()
-        .FirstOrDefault();
+static void PrintDeletedFlags()
+{
+    var e1 = new BaseRepository<Entity1>().CustomQueryNT().FirstOrDefault();
+    var e2 = new BaseRepository<Entity2>().CustomQueryNT().FirstOrDefault();
+    var e3 = new BaseRepository<Entity3>().CustomQueryNT().ToList();
+    var e4 = new BaseRepository<Entity4>().CustomQueryNT().ToList();
 
-    var relatedItem = baseRepository2.CustomQueryNT()
-        .FirstOrDefault();
-
-    var relatedItems = baseRepository3.CustomQueryNT()
-        .ToList();
-
-    var relatedItems2 = baseRepository4.CustomQueryNT()
-        .ToList();
-
-    Console.WriteLine($"Entity 1 Deleted : {removedItem.Deleted}");
-    Console.WriteLine($"Entity 2 Deleted : {relatedItem.Deleted}");
-
-    relatedItems.ForEach(p =>
-    {
-        Console.WriteLine($"Entity 3 Deleted : {p.Deleted}");
-    });
-
-    relatedItems2.ForEach(p =>
-    {
-        Console.WriteLine($"Entity 4 Deleted : {p.Deleted}");
-    });
+    Console.WriteLine($"Entity1 Deleted: {e1?.Deleted}");
+    Console.WriteLine($"Entity2 Deleted: {e2?.Deleted}");
+    e3.ForEach(p => Console.WriteLine($"Entity3 {p.Id} Deleted: {p.Deleted}"));
+    e4.ForEach(p => Console.WriteLine($"Entity4 {p.Id} Deleted: {p.Deleted}"));
 }

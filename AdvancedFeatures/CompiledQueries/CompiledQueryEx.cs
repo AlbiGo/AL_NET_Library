@@ -1,7 +1,6 @@
 ﻿using DataManagement.DbContext;
 using DataManagement.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace AdvancedFeatures.CompiledQueries
 {
@@ -11,32 +10,23 @@ namespace AdvancedFeatures.CompiledQueries
         public DateTime Created { get; set; }
     }
 
+    /// <summary>
+    /// EF.CompileQuery caches a query shape for repeated execution with different parameters.
+    /// Prefer this over rebuilding the same expression tree on every call in hot paths.
+    /// </summary>
     public static class CompiledQueryEx
     {
-        private static Func<DatabaseContext, Filter, IEnumerable<Entity1>> CreateCompiledFilterQuery()
+        private static readonly Func<DatabaseContext, string, DateTime, IEnumerable<Entity1>> FilterQuery =
+            EF.CompileQuery((DatabaseContext context, string term, DateTime created) =>
+                context.Entity1s.Where(p =>
+                    p.Name.Contains(term) &&
+                    p.Created > created));
+
+        public static IEnumerable<Entity1> Filter(DatabaseContext context, Filter filter)
         {
-            Func<DatabaseContext, Filter, IEnumerable<Entity1>> filterCompiledQuery = EF.CompileQuery((DatabaseContext context, Filter filter) =>
-                context.Entity1s.Where(p => p.Name.Contains(filter.FilterTerm) &&
-                                            p.Created > filter.Created));
-
-            return filterCompiledQuery;
-        }
-
-        public static void Filter(this IEnumerable<Entity1> entities, Filter filter)
-        {
-            var filterCompiledQuery = CreateCompiledFilterQuery();
-            using (DatabaseContext context = new DatabaseContext())
-            {
-                entities = filterCompiledQuery.Invoke(context, filter);
-
-                foreach (var entity in entities)
-                {
-                    Console.WriteLine("ID: {0}  Name : {1} Created: {2}",
-                        entity.Id,
-                        entity.Name,
-                        entity.Created);
-                }
-            }
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(filter);
+            return FilterQuery(context, filter.FilterTerm ?? string.Empty, filter.Created);
         }
     }
 }

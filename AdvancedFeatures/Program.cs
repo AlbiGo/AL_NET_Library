@@ -1,176 +1,110 @@
 ﻿using AdvancedFeatures.Delegates;
+using AdvancedFeatures.Events;
+using AdvancedFeatures.Expressions;
+using AdvancedFeatures.Generics.Implementation;
+using AdvancedFeatures.Generics.Implementation.Data;
 using AdvancedFeatures.Linq;
 
-internal delegate int myDelegate(int a, int b);
-
-public static class Ex
-{
-    public static bool EnumerableContains<S, T>(this IEnumerable<S> obj, Func<S, T> comparer, T valueToMatch)
-    {
-        return obj.Any(l => comparer(l).Equals(valueToMatch));
-    }
-}
-
+/// <summary>
+/// Extra garage step from another type — still attachable if the signature matches the delegate.
+/// </summary>
 public class CarServiceExtension
 {
     private readonly Car _car;
 
-    public CarServiceExtension(Car car)
-    {
-        _car = car;
-    }
+    public CarServiceExtension(Car car) => _car = car;
 
-    public void TransmissionService()
-    {
-        Console.WriteLine(_car.Name + " transmission serviced");
-    }
+    public void TransmissionService() => Console.WriteLine($"{_car.Name}: transmission serviced");
 }
-
-public class Calc
-{
-    private int Sum(int a, int b)
-    {
-        return a + b;
-    }
-
-    private int Multiply(int a, int b)
-    {
-        return a * b;
-    }
-
-    public void DoAllOps(int a, int b)
-    {
-        Console.WriteLine(Sum(a, b));
-        Console.WriteLine(Multiply(a, b));
-    }
-}
-
-public delegate void CalculatorDelegate(int a, int b);
 
 internal class Program
 {
     private static void Main()
     {
-        #region Delegates
-
-        //var delegateObject = new DelegateClass();
-        //var d = new myDelegate(delegateObject.DoWork);
-        //int result = d(5, 6);
-
-        //Console.WriteLine(result);
-        //var car = new Car()
-        //{
-        //    Name = "Evo",
-        //};
-
-        //var services = new CarServices<Car>(car);
-        //var serviceGarage = new ServiceGarage(car);
-        //ServiceGarage.CarServiceDelegate carServiceDelegate = services.EngineService;
-        //carServiceDelegate += services.TireChange;
-        //var carServiceExtension = new CarServiceExtension(car);
-        //carServiceDelegate += carServiceExtension.TransmissionService;
-
-        //serviceGarage.DoService(carServiceDelegate);
-
-        var calc = new Calc();
-        CalculatorDelegate calcDelegate = calc.DoAllOps;
-
-        calcDelegate(3, 6);
-
-        #endregion Delegates
-
-        #region Events
-
-        //var taskService = new TaskService();
-        //var appService = new AppService();
-        //var mailService = new EmailService();
-
-        //taskService.TaskCreated += appService.OnTaskCreated;
-        //taskService.TaskCreated += mailService.OnTaskCreated;
-        //taskService.TaskCompleted += appService.OnTaskCompleted;
-        //taskService.TaskCompleted += mailService.OnTaskCompleted;
-
-        //taskService.PrepareTask(new AdvancedFeatures.Events.Task() { Title = "Write SQL Store Procedure" });
-        //Console.WriteLine("-----------------------------------------------------------------------------------------------");
-        //taskService.CompleteTask(new AdvancedFeatures.Events.Task() { Title = "Write SQL Store Procedure" });
-
-        //var ratesService = new RatesService();
-        //var economicsService = new EconomicsService();
-
-        //ratesService.RatesUpdated += economicsService.OnRatesUpdated;
-
-        //ratesService.UpdateRates(20, 3);
-
-        //var obj = new List<Person> { new Person { ID = 1, Name = "Arunava" }, new Person { ID = 2, Name = "Bubu" } };
-        //bool res = obj.EnumerableContains(data => data.Name, "Bubu");
-        //Console.WriteLine(res); // Outputs "True"
-
-        #endregion Events
-
-        #region Expression Trees
-
-        //Func<int, int, int> sum1 = (int number1, int number2) => number1 + number2;
-        //var sum = (ExpressionTrees.CreateExpressionTreeFromLambdaExpression()).Compile();
-        ////Console.WriteLine(sum(5, 7));
-
-        //Expression<Func<Student, bool>> isTeenAgerExpr = s => s.Age > 12 && s.Age < 20;
-        //Expression<Action<Student>> printStudentName = s => Console.WriteLine(s.StudentName);
-        //Action<Student> printStudentNameAc = s => Console.WriteLine(s.StudentName);
-
-        //isTeenAgerExpr = s => s.Age > 12 && s.Age < 25 && s.StudentName.Contains("Al");
-
-        //var stList = new List<Student>()
-        //{
-        //    new()
-        //    {
-        //        Age = 23,
-        //        StudentID = 1,
-        //        StudentName = "Albus",
-        //        Email = "Albus@gmail.com"
-
-        // }, new() { Age = 13, StudentID = 2, StudentName = "Donus", Email = "Donus@gmail.com"
-
-        // }, new() { Age = 45, StudentID = 4, StudentName = "Xhonus", Email = "Xhonus@gmail.com"
-
-        //    }
-        //}.AsQueryable();
-
-        //var studentFilter = new StudentFilter()
-        //{
-        //    Age = 20,
-        //    Email = "Xhonus@gmail.com"
-        //};
-
-        ////var filterEx = ExpressionTrees.CreateExpressionTreeFromFilter(studentFilter);
-
-        //var studentList = stList.InlineFilter(studentFilter)
-        //    .ToList();
-
-        //studentList.ForEach(printStudentName.Compile());
-
-        #endregion Expression Trees
-
-        #region LINQ
-
-        var myLst = new List<int>();
-        myLst.Add(1);
-        myLst.Add(-11);
-        myLst.Add(-2);
-        myLst.Add(4);
-
-        var linqResult = myLst.WherePositive(p => p > 0)
-            .ToList();
-
-        linqResult.ForEach(p => Console.WriteLine(p));
-
-        #endregion LINQ
-
-        Console.ReadLine();
+        RunDelegatesDemo();
+        RunEventsDemo();
+        RunExpressionTreesDemo();
+        RunGenericsDemo();
+        RunLinqDemo();
     }
 
-    public class Person
+    private static void RunDelegatesDemo()
     {
-        public int ID { get; set; }
-        public string Name { get; set; }
+        Console.WriteLine("=== Delegates ===");
+        // Multicast: one delegate variable holds several methods; Invoke runs them in order.
+        var car = new Car { Name = "Evo" };
+        var services = new CarServicesLocal(car);
+        var garage = new ServiceGarage(car);
+        var extension = new CarServiceExtension(car);
+
+        ServiceGarage.CarServiceDelegate pipeline = services.EngineService;
+        pipeline += services.TireChange;
+        pipeline += services.OilChange;
+        pipeline += extension.TransmissionService;
+
+        garage.DoService(pipeline);
+        Console.WriteLine();
+    }
+
+    private static void RunEventsDemo()
+    {
+        Console.WriteLine("=== Events ===");
+        // Events wrap delegates: publishers raise, subscribers handle — publisher cannot reset the list.
+        var taskService = new TaskService();
+        var app = new AppService();
+        var email = new EmailService();
+
+        taskService.TaskCreated += app.OnTaskCreated;
+        taskService.TaskCreated += email.OnTaskCreated;
+        taskService.TaskCompleted += app.OnTaskCompleted;
+        taskService.TaskCompleted += email.OnTaskCompleted;
+
+        var work = new TaskItem { Title = "Write stored procedure" };
+        taskService.PrepareTask(work);
+        taskService.CompleteTask(work);
+        Console.WriteLine();
+    }
+
+    private static void RunExpressionTreesDemo()
+    {
+        Console.WriteLine("=== Expression trees ===");
+        // Keep Expression on IQueryable so providers can translate; do not .Compile() for EF queries.
+        var students = new List<Student>
+        {
+            new() { StudentID = 1, StudentName = "Albus", Age = 23, Email = "Albus@gmail.com" },
+            new() { StudentID = 2, StudentName = "Donus", Age = 13, Email = "Donus@gmail.com" },
+            new() { StudentID = 3, StudentName = "Xhonus", Age = 45, Email = "Xhonus@gmail.com" }
+        }.AsQueryable();
+
+        var filter = new StudentFilter { Age = 20, Email = "Xhonus" };
+        foreach (var student in students.InlineFilter(filter))
+        {
+            Console.WriteLine($"{student.StudentName} ({student.Age}) {student.Email}");
+        }
+
+        Console.WriteLine();
+    }
+
+    private static void RunGenericsDemo()
+    {
+        Console.WriteLine("=== Generics ===");
+        // Same generic helper; behavior comes from each type's Calculate() — no switch on T.
+        var data1 = new Data1();
+        var data2 = new Data2();
+        GenericServices<Data1>.Calculate(data1);
+        GenericServices<Data2>.Calculate(data2);
+        Console.WriteLine($"Data1 MainEconomics = {data1.MainEconomics}");
+        Console.WriteLine($"Data2 MainEconomics = {data2.MainEconomics}");
+        Console.WriteLine();
+    }
+
+    private static void RunLinqDemo()
+    {
+        Console.WriteLine("=== Custom LINQ ===");
+        var numbers = new List<int> { 1, -11, -2, 4 };
+        foreach (var n in numbers.WherePositive())
+        {
+            Console.WriteLine(n);
+        }
     }
 }

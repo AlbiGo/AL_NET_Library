@@ -1,56 +1,34 @@
-﻿// See https://aka.ms/new-console-template for more information
-using AuditEntry;
+﻿using AuditEntry;
 using Microsoft.EntityFrameworkCore;
 
-Console.WriteLine("Hello, World!");
+Console.WriteLine("=== Audit entry ===");
+// Saving users records property-level old/new values into AuditEntry / AuditEntryProperty.
 
+await using var dbContext = new AuditDbContext("audit-demo");
 
-var dbContext = new AuditDbContext();
-
-await dbContext.Users.AddAsync(new User()
-{
-    Email = "someEmail",
-    Name = "SomeName"
-});
-
-await dbContext.Users.AddAsync(new User()
-{
-    Email = "someEmail213",
-    Name = "SomeNamadae"
-});
-
-await dbContext.Users.AddAsync(new User()
-{
-    Email = "someE213214mail",
-    Name = "SomeNamdade"
-});
+dbContext.Users.AddRange(
+    new User { Email = "one@example.com", Name = "One" },
+    new User { Email = "two@example.com", Name = "Two" });
 await dbContext.SaveChangesAsync();
 
-var users = dbContext.Users.ToList();
-
-users.ForEach(x =>
-{
-    Console.WriteLine(x.Id + "  |   " + x.Email);
-});
-
-var user = await dbContext.Users
-    .Where(p => p.Id == 1)
-    .FirstOrDefaultAsync();
-
-user.Email = "TestAudit";
-
-dbContext.Users.Update(user);
+var user = await dbContext.Users.FirstAsync();
+user.Email = "updated@example.com";
 await dbContext.SaveChangesAsync();
 
-var auditEntry = dbContext.AuditEntryProperties
+Console.WriteLine("Users:");
+foreach (var u in dbContext.Users)
+{
+    Console.WriteLine($"  {u.Id} | {u.Email}");
+}
+
+Console.WriteLine();
+Console.WriteLine("Audit properties:");
+var auditRows = await dbContext.AuditEntryProperties
     .Include(p => p.AuditEntry)
-    .ToList();
-Console.WriteLine("Entity Name" + " |   " + "Property Name" + " |  Old Value " + "   |  " + "New Value" + "     |   Modified");
-auditEntry.ForEach(p =>
+    .ToListAsync();
+
+foreach (var row in auditRows)
 {
-    Console.WriteLine(p.AuditEntry.EntityName + "   |   " + p.PropertyName + "  |   " + p.PropertyOldValue + "  |   " + p.PropertyNewValue + "      |       " + p.Modified);
-    Console.WriteLine("--------------------------------------------------------------------------------------------");
-});
-
-Console.ReadLine();
-
+    Console.WriteLine(
+        $"{row.AuditEntry.EntityName} | {row.PropertyName} | {row.PropertyOldValue} -> {row.PropertyNewValue} | {row.Modified}");
+}

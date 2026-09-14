@@ -2,26 +2,22 @@
 
 namespace EntityFramework.Detach.Repository
 {
+    /// <summary>
+    /// Minimal repository focused on detach behavior.
+    /// Pass a shared <see cref="AuditEntry.AuditDbContext"/> so all operations use one store.
+    /// </summary>
     public class BaseRepository<T> where T : class
     {
         private readonly AuditEntry.AuditDbContext _databaseContext;
         private readonly DbSet<T> _dbSet;
 
-        public BaseRepository()
+        public BaseRepository(AuditEntry.AuditDbContext databaseContext)
         {
-            _databaseContext = new AuditEntry.AuditDbContext();
+            _databaseContext = databaseContext;
             _dbSet = _databaseContext.Set<T>();
         }
 
-        public IQueryable<T> CustomQueryNT()
-        {
-            return _dbSet.AsNoTracking();
-        }
-
-        public IQueryable<T> CustomQuery()
-        {
-            return _dbSet;
-        }
+        public IQueryable<T> CustomQuery() => _dbSet;
 
         public async Task Add(T entity)
         {
@@ -29,27 +25,14 @@ namespace EntityFramework.Detach.Repository
             await _databaseContext.SaveChangesAsync();
         }
 
-        public async Task Update(T entity)
-        {
-            _databaseContext.Update(entity);
-            await _databaseContext.SaveChangesAsync();
-        }
-
-        public async Task SaveChanges()
-        {
-            await _databaseContext.SaveChangesAsync();
-        }
-
-        public async Task Remove(T entity)
-        {
-            _dbSet.Remove(entity);
-            await _databaseContext.SaveChangesAsync();
-        }
+        public Task SaveChanges() => _databaseContext.SaveChangesAsync();
 
         public void Detach(T entity)
         {
             if (entity == null)
+            {
                 return;
+            }
 
             _databaseContext.Entry(entity).State = EntityState.Detached;
         }

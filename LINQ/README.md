@@ -1,6 +1,6 @@
 # LINQ
 
-Queryable filters, pagination, and joins against EF-style models.
+Keep filters on `IQueryable` so EF can translate to SQL, paginate with `(page - 1) * size`, and project joins into DTOs from both sides.
 
 ```bash
 dotnet run --project LINQ

@@ -1,16 +1,18 @@
-﻿// See https://aka.ms/new-console-template for more information
-using SOLID.Interface_Segregation;
+﻿using SOLID.Interface_Segregation;
 using SOLID.Liskov;
 
-Console.WriteLine("Hello, World!");
+Console.WriteLine("=== ISP: call only the surface you need ===");
+// Prefer small interfaces. Callers depend on IBaseClassA or IBaseClassB, not a fat combined API.
+IBaseClassA onlyA = new BaseClass();
+onlyA.MethodA();
 
-//Habitat habitat = new Habitat();
-//habitat.MakeAnimalMove(new Animal());
-//habitat.MakeAnimalMove(new Fish());
-//habitat.MakeAnimalMove(new Bird());
+IBaseClassB onlyB = new BaseClass();
+onlyB.MethodB();
+Console.WriteLine();
 
-IBaseClassA iBaseClassA = new BaseClass();
-iBaseClassA.MethodA();
-IBaseClassB iBaseClassB = new BaseClass();
-iBaseClassB.MethodB();
-
+Console.WriteLine("=== LSP: subtypes work through the base API ===");
+// Habitat depends on Animal. Bird/Fish must remain substitutable without breaking callers.
+var habitat = new Habitat();
+habitat.MakeAnimalMove(new Animal());
+habitat.MakeAnimalMove(new Fish());
+habitat.MakeAnimalMove(new Bird());

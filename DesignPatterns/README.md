@@ -1,6 +1,6 @@
 # Design Patterns
 
-Best-practice demos for common creational and behavioral patterns.
+Practical creational and behavioral patterns: thread-safe Singleton, Factory Method, Abstract Factory, Builder, and Strategy — when they help, and when DI or simple code is enough.
 
 ```bash
 dotnet run --project DesignPatterns
@@ -26,7 +26,3 @@ Comment out any `Run*Demo()` call in `Program.cs` to focus on one pattern.
 ## Guide
 
 See [docs/06-solid-and-patterns.md](../docs/06-solid-and-patterns.md).
-
-## Planned
-
-- Mediator, Prototype, structural patterns (Adapter, Decorator, Facade)

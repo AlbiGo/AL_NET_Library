@@ -1,6 +1,6 @@
 # Data management
 
-Repository patterns, soft-delete, and safe raw SQL loading.
+CRUD and soft-delete with clear timestamps and navigation handling; load SQL from files and bind parameters separately — never concatenate values into SQL.
 
 ```bash
 dotnet run --project DataManagement

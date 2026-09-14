@@ -1,6 +1,6 @@
 # Dependency injection
 
-Demonstrates a correct composition root versus manual wiring.
+Build the container once at a composition root, inject dependencies through constructors, use scopes for DbContext-style lifetimes, and avoid rebuilding the provider or manually `new`ing large graphs.
 
 ```bash
 dotnet run --project Dependency

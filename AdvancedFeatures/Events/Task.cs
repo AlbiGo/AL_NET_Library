@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdvancedFeatures.Events
+﻿namespace AdvancedFeatures.Events
 {
-    public class Task
+    /// <summary>
+    /// Work item used by the events demo (named TaskItem to avoid clashing with System.Threading.Tasks.Task).
+    /// </summary>
+    public class TaskItem
     {
-        public string Title { get; set; }
+        public string? Title { get; set; }
     }
 }

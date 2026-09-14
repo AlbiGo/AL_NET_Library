@@ -1,53 +1,30 @@
-﻿// See https://aka.ms/new-console-template for more information
-using AuditEntry;
+﻿using AuditEntry;
 using EntityFramework.Detach.Repository;
 using Microsoft.EntityFrameworkCore;
 
-Console.WriteLine("Hello, World!");
-var _repo = new BaseRepository<User>();
+Console.WriteLine("=== EF detach ===");
+// Detached entities are ignored by SaveChanges — local edits will not persist.
 
-await _repo.Add(new User()
+await using var context = new AuditDbContext("detach-demo");
+var repo = new BaseRepository<User>(context);
+
+await repo.Add(new User { Email = "one@example.com", Name = "One" });
+await repo.Add(new User { Email = "two@example.com", Name = "Two" });
+
+Console.WriteLine("Before detach/edit:");
+foreach (var u in await repo.CustomQuery().ToListAsync())
 {
-    Email = "someEmail",
-    Name = "SomeName"
-});
+    Console.WriteLine($"  {u.Id} | {u.Email}");
+}
 
-await _repo.Add(new User()
+var user = await repo.CustomQuery().FirstAsync(p => p.Email == "one@example.com");
+user.Email = "changed@example.com";
+repo.Detach(user);
+await repo.SaveChanges();
+
+Console.WriteLine();
+Console.WriteLine("After edit + detach + SaveChanges (change should NOT persist):");
+foreach (var u in await repo.CustomQuery().AsNoTracking().ToListAsync())
 {
-    Email = "someEmail213",
-    Name = "SomeNamadae"
-});
-
-await _repo.Add(new User()
-{
-    Email = "someE213214mail",
-    Name = "SomeNamdade"
-});
-
-var users = await _repo.CustomQuery()
-    .ToListAsync();
-
-users.ForEach(x =>
-{
-    Console.WriteLine(x.Id + "  |   " + x.Email);
-});
-
-Console.WriteLine("------------------------------------------------------------------------------");
-
-var _user = await _repo.CustomQuery()
-    .Where(p => p.Email == "someEmail")
-    .FirstOrDefaultAsync();
-
-_user.Email = "changedEmail";
-
-_repo.Detach(_user);
-
-await _repo.SaveChanges();
-
-var users2 = await _repo.CustomQuery()
-    .ToListAsync();
-
-users2.ForEach(x =>
-{
-    Console.WriteLine(x.Id + "  |   " + x.Email);
-});
+    Console.WriteLine($"  {u.Id} | {u.Email}");
+}

@@ -1,46 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdvancedFeatures.Events
+﻿namespace AdvancedFeatures.Events
 {
+    /// <summary>
+    /// Publisher: raises TaskCreated / TaskCompleted.
+    /// Events are multicast delegates with restricted access — only this type can raise them.
+    /// </summary>
     public class TaskService
     {
-        //Task Created
-        public delegate void TaskCreatedEventHandler(object source, EventArgs args);
-        public event TaskCreatedEventHandler TaskCreated;
+        public event EventHandler? TaskCreated;
+        public event EventHandler? TaskCompleted;
 
-        //Task completed
-        public delegate void TaskCompletedEventHandler(object source, EventArgs args);
-        public event TaskCompletedEventHandler TaskCompleted;
-        public void PrepareTask(Task order)
+        public void PrepareTask(TaskItem work)
         {
-            Console.WriteLine($"Preparing your task '{order.Title}', please wait...");
-            Thread.Sleep(4000);
+            Console.WriteLine($"Preparing '{work.Title}'...");
             OnTaskCreated();
         }
 
-        public void CompleteTask(Task task)
+        public void CompleteTask(TaskItem work)
         {
-            Console.WriteLine($"Task {task.Title} completed.");
-            Thread.Sleep(4000);
+            Console.WriteLine($"Completed '{work.Title}'.");
             OnTaskCompleted();
         }
 
-        protected virtual void OnTaskCompleted()
-        {
-            Console.WriteLine("Task completed;");
-            if (TaskCompleted != null)
-                TaskCompleted(this, null);
-        }
+        protected virtual void OnTaskCreated() => TaskCreated?.Invoke(this, EventArgs.Empty);
 
-        protected virtual void OnTaskCreated()
-        {
-            Console.WriteLine("Task created;");
-            if (TaskCreated != null)
-                TaskCreated(this, null);
-        }
+        protected virtual void OnTaskCompleted() => TaskCompleted?.Invoke(this, EventArgs.Empty);
     }
 }

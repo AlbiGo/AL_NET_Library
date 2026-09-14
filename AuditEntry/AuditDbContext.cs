@@ -1,130 +1,116 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AuditEntry
 {
-    // Represents the database context for handling audit entries and related entities
+    /// <summary>
+    /// In-memory context that writes audit rows for Added/Modified/Deleted entities on save.
+    /// </summary>
     public class AuditDbContext : DbContext
     {
-        // Constructor for dependency injection with DbContextOptions
-        public AuditDbContext(DbContextOptions<AuditDbContext> options) : base(options) { }
+        private readonly string _databaseName;
 
-        // Default constructor, useful for scenarios like in-memory databases
         public AuditDbContext()
-        { }
+            : this(Guid.NewGuid().ToString())
+        {
+        }
 
-        // DbSet properties represent tables in the database
-        public DbSet<AuditEntry> AuditEntries { get; set; }
+        /// <summary>Share <paramref name="databaseName"/> across repositories so they hit the same store.</summary>
+        public AuditDbContext(string databaseName)
+        {
+            _databaseName = databaseName;
+        }
 
-        public DbSet<AuditEntryProperty> AuditEntryProperties { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+        public DbSet<AuditEntryProperty> AuditEntryProperties => Set<AuditEntryProperty>();
+        public DbSet<User> Users => Set<User>();
 
-        // Configures the database context, here using an in-memory database
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Creates a unique in-memory database for each session
-            optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
-        }
-
-        // Asynchronously saves changes to the database, including creating audit entries
-        public virtual async Task<int> SaveChangesAsync(string userId = "141414")
-        {
-            // Prepare audit entries before saving changes
-            OnBeforeSaveChanges(userId);
-            // Save changes to the database and return the result
-            return await base.SaveChangesAsync();
-        }
-
-        // Prepares audit entries by tracking changes before saving to the database
-        private void OnBeforeSaveChanges(string userId)
-        {
-            // Detect changes made to the entities being tracked by the DbContext
-            ChangeTracker.DetectChanges();
-
-            // Filter out entries that shouldn't be audited and convert to a list
-            var entries = ChangeTracker.Entries()
-                .Where(entry => !(entry.Entity is AuditEntry) && entry.State != EntityState.Detached && entry.State != EntityState.Unchanged)
-                .ToList();
-
-            // Iterate over each entry to create audit entries and properties
-            foreach (var entry in entries)
+            if (!optionsBuilder.IsConfigured)
             {
-                // Create a new audit entry for the current entity
-                var auditEntry = CreateAuditEntry(entry, userId);
-
-                // Add the audit entry to the AuditEntries DbSet
-                AuditEntries.Add(auditEntry);
-
-                // Create and add audit entry properties for each property in the entity
-                foreach (var property in entry.Properties)
-                {
-                    // Create an audit entry property for the current property
-                    var auditEntryProperty = CreateAuditEntryProperty(entry, property, auditEntry);
-                    // Add the audit entry property to the AuditEntryProperties DbSet
-                    AuditEntryProperties.Add(auditEntryProperty);
-                }
+                optionsBuilder.UseInMemoryDatabase(_databaseName);
             }
         }
 
-        // Creates an audit entry for a given entity entry and user ID
-        private AuditEntry CreateAuditEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, string userId)
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+            => SaveChangesWithAuditAsync("system", cancellationToken);
+
+        public Task<int> SaveChangesWithAuditAsync(string userId, CancellationToken cancellationToken = default)
         {
-            return new AuditEntry
-            {
-                EntityName = entry.Entity.GetType().Name, // Store the entity's name
-                UserId = int.Parse(userId), // Associate the user ID with the audit entry
-                Type = entry.State.ToString(), // Record the type of entity state change
-                EntityID = GetEntityPrimaryKey(entry) // Get and store the primary key value
-            };
+            OnBeforeSaveChanges(userId);
+            return base.SaveChangesAsync(cancellationToken);
         }
 
-        // Retrieves the primary key value of an entity entry
-        private int GetEntityPrimaryKey(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+        private void OnBeforeSaveChanges(string userId)
         {
-            // Attempt to find a property named 'Id' or 'ID' as the primary key
+            ChangeTracker.DetectChanges();
+
+            var entries = ChangeTracker.Entries()
+                .Where(entry => entry.Entity is not AuditEntry and not AuditEntryProperty
+                                && entry.State is not (EntityState.Detached or EntityState.Unchanged))
+                .ToList();
+
+            foreach (var entry in entries)
+            {
+                var auditEntry = new AuditEntry
+                {
+                    EntityName = entry.Entity.GetType().Name,
+                    UserId = int.TryParse(userId, out var id) ? id : 0,
+                    Type = entry.State.ToString(),
+                    EntityID = GetEntityPrimaryKey(entry),
+                    Created = DateTime.UtcNow,
+                    AuditEntryProperties = new List<AuditEntryProperty>()
+                };
+
+                foreach (var property in entry.Properties)
+                {
+                    var auditProperty = CreateAuditEntryProperty(entry, property);
+                    if (auditProperty != null)
+                    {
+                        auditEntry.AuditEntryProperties.Add(auditProperty);
+                    }
+                }
+
+                AuditEntries.Add(auditEntry);
+            }
+        }
+
+        private static int GetEntityPrimaryKey(EntityEntry entry)
+        {
             var primaryKeyProperty = entry.Properties
                 .FirstOrDefault(p => p.Metadata.Name.Equals("Id", StringComparison.OrdinalIgnoreCase));
 
-            // Throw an exception if no primary key is found
-            if (primaryKeyProperty == null)
+            if (primaryKeyProperty?.CurrentValue == null)
             {
-                throw new InvalidOperationException("Entity does not have a primary key property named 'Id' or 'ID'.");
+                return 0;
             }
 
-            // Return the primary key value as an integer
             return Convert.ToInt32(primaryKeyProperty.CurrentValue);
         }
 
-        // Creates an audit entry property for a given property entry and audit entry
-        private AuditEntryProperty CreateAuditEntryProperty(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, Microsoft.EntityFrameworkCore.ChangeTracking.PropertyEntry property, AuditEntry auditEntry)
+        private static AuditEntryProperty? CreateAuditEntryProperty(EntityEntry entry, PropertyEntry property)
         {
             var auditEntryProperty = new AuditEntryProperty
             {
-                PropertyName = property.Metadata.Name, // Record the property name
-                AuditEntryID = auditEntry.ID, // Associate with the audit entry ID
-                Modified = property.IsModified ? "Yes" : "No" // Indicate if the property was modified
+                PropertyName = property.Metadata.Name,
+                Modified = property.IsModified ? "Yes" : "No"
             };
 
-            // Determine the values to record based on the entity state
             switch (entry.State)
             {
                 case EntityState.Added:
-                    // Record the new value for added entities
                     auditEntryProperty.PropertyNewValue = property.CurrentValue?.ToString();
                     break;
-
                 case EntityState.Deleted:
-                    // Record the old value for deleted entities
                     auditEntryProperty.PropertyOldValue = property.OriginalValue?.ToString();
                     break;
-
-                case EntityState.Modified:
-                    // Record both old and new values for modified entities
-                    if (property.IsModified)
-                    {
-                        auditEntryProperty.PropertyOldValue = property.OriginalValue?.ToString();
-                        auditEntryProperty.PropertyNewValue = property.CurrentValue?.ToString();
-                    }
+                case EntityState.Modified when property.IsModified:
+                    auditEntryProperty.PropertyOldValue = property.OriginalValue?.ToString();
+                    auditEntryProperty.PropertyNewValue = property.CurrentValue?.ToString();
                     break;
+                default:
+                    return null;
             }
 
             return auditEntryProperty;

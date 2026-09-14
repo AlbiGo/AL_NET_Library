@@ -1,38 +1,56 @@
-﻿for (int i = 0; i < 10; i++)
+﻿// Catch only what you handle. Prefer throw; over throw ex; to keep the stack trace.
+
+Console.WriteLine("=== Exceptions ===");
+
+for (int i = 0; i < 10; i++)
 {
     try
     {
-        if (i == 6)
-        {
-            throw new Exception("Method A");
-        }
-        Console.WriteLine($"Multiply {i * i}");
+        ProcessIndex(i);
     }
-    catch (Exception ex)
+    catch (InvalidOperationException ex)
     {
-        LogError(i);
+        // Handled: log and continue the loop.
+        Console.WriteLine($"Handled at index {i}: {ex.Message}");
     }
 }
 
-Console.ReadLine();
-
-void LogError(int index)
+Console.WriteLine();
+Console.WriteLine("=== Rethrow correctly ===");
+try
 {
-    Console.WriteLine($"Error in index {index}");
+    RethrowDemo();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Caught after rethrow: {ex.Message}");
+    Console.WriteLine($"Stack still points at ThrowInner: {ex.StackTrace?.Contains(nameof(ThrowInner)) == true}");
 }
 
-void MethodA(int a)
+static void ProcessIndex(int index)
+{
+    if (index == 6)
+    {
+        throw new InvalidOperationException("Simulated failure at index 6");
+    }
+
+    Console.WriteLine($"Multiply {index * index}");
+}
+
+static void RethrowDemo()
 {
     try
     {
-        if (a == 6)
-        {
-            throw new Exception("Method A");
-        }
-        Console.WriteLine($"Multiply {a * a}");
+        ThrowInner();
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-        throw ex;
+        // Preserves the original stack trace. Do not use: throw ex;
+        throw;
     }
+}
+
+static void ThrowInner()
+{
+    throw new InvalidOperationException("Inner failure");
 }

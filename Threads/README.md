@@ -1,6 +1,6 @@
-# Threads / async
+# Threads / async and concurrency
 
-Compares sequential work, overlapping threads, and real async/await.
+Do real async (`await` I/O / `Task.Delay`), avoid fake async and `async void`, and overlap independent work with threads or tasks while respecting real ordering.
 
 ```bash
 dotnet run --project Threads

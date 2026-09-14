@@ -1,31 +1,24 @@
 ﻿using DataManagement.Entities;
-using Dependency.Concept;
 using Logging.Repositories;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logging.Services
 {
+    /// <summary>
+    /// Boundary logging via repository. Prefer constructor injection over resolving inside the ctor.
+    /// </summary>
     public class LogService : ILogService
     {
         private readonly IExceptionLogRepository _exceptionLogRepository;
 
-        public LogService()
+        public LogService(IExceptionLogRepository exceptionLogRepository)
         {
-            _exceptionLogRepository = DependencyInjectionProvider.Resolve<IExceptionLogRepository>();
+            _exceptionLogRepository = exceptionLogRepository;
         }
 
-        /// <summary>
-        /// Log to db
-        /// </summary>
-        public async Task Log(Log log)
-        {
-            await _exceptionLogRepository.Add(log);
-        }
+        public Task Log(Log log) => _exceptionLogRepository.Add(log);
 
-        public async Task<List<Log>> GetLogs()
-        {
-            return await (_exceptionLogRepository.CustomQuery()
-                .ToListAsync());
-        }
+        public Task<List<Log>> GetLogs() =>
+            _exceptionLogRepository.CustomQuery().ToListAsync();
     }
 }

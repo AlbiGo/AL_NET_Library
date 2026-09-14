@@ -1,32 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SOLID.Interface_Segregation
+﻿namespace SOLID.Interface_Segregation
 {
-    public class BaseClass : IBaseClassA, IBaseClassB
-    {
-        public void MethodA()
-        {
-            Console.WriteLine("Method A");
-        }
-
-        public void MethodB()
-        {
-            Console.WriteLine("Method B");
-        }
-    }
-
+    /// <summary>
+    /// Interface Segregation: split roles so callers are not forced to depend on unused members.
+    /// </summary>
     public interface IBaseClassA
     {
-        public void MethodA();
-
+        void MethodA();
     }
 
     public interface IBaseClassB
     {
-        public void MethodB();
+        void MethodB();
+    }
+
+    public class BaseClass : IBaseClassA, IBaseClassB
+    {
+        public void MethodA() => Console.WriteLine("Method A");
+
+        public void MethodB() => Console.WriteLine("Method B");
     }
 }
