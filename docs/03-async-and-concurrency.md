@@ -8,6 +8,10 @@
 
 Fake `async` (no `await`) and `async void` look modern but teach the wrong mental model. Real samples show *when* work can overlap and *when* order must be respected.
 
+## Why this example
+
+A **kitchen** has obvious independent steps (boil water vs chop ingredients) and real dependencies (pasta waits for water). That makes `Join` / `await` ordering intuitive without needing sockets or a database.
+
 ## How the sample code works
 
 **Sample:** [`samples/Threads/`](../samples/Threads/)

@@ -2,6 +2,10 @@
 
 Events are restricted multicast delegates: subscribers attach with `+=`, the publisher raises with `?.Invoke`.
 
+## Why this example
+
+Task lifecycle (created / completed) with App + Email subscribers matches real “one raise, many side effects.” `TaskEventArgs` shows why handlers need a payload, not empty `EventArgs`.
+
 ## Prefer
 
 - `EventHandler<TaskEventArgs>` so handlers receive the task title

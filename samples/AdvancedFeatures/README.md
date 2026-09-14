@@ -6,6 +6,17 @@ Advanced C# techniques used in real apps: delegates, events, expression trees, g
 dotnet run --project samples/AdvancedFeatures
 ```
 
+## Why these examples
+
+| Topic | Why we chose it |
+| --- | --- |
+| Delegates | Garage pipeline = ordered void steps from many classes |
+| Events | Task created/completed = one raise, many side effects + payload |
+| Expression trees | Student filter shows `.Compile()` breaking EF translation |
+| Generics | Data1/Data2 `Calculate()` vs switch-on-`T` anti-pattern |
+| Custom LINQ | Smallest deferred `yield` demo |
+| Compiled queries | Hot-path name/date filter shape |
+
 ## Topics
 
 | Topic | Description |

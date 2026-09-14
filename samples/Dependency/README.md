@@ -6,6 +6,10 @@ Build the container once at a composition root, inject dependencies through cons
 dotnet run --project samples/Dependency
 ```
 
+## Why this example
+
+A tiny `Controller → Service → Repo → Context` graph shows composition root, lifetimes, and constructor injection without ASP.NET/HTTP noise. `EconomicsControllerV2` is the manual-`new` contrast.
+
 ## Do
 
 - **`AppServices`** — register once, reuse one `ServiceProvider`, resolve with scopes

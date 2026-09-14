@@ -6,6 +6,10 @@ Log at boundaries with clear levels and context; prefer structured messages over
 dotnet run --project samples/Logging
 ```
 
+## Why this example
+
+Info → simulated Error → read-back shows inject → write at boundaries → verify, without a real logging SaaS.
+
 ## What’s here
 
 - `ILogService` / `LogService` and exception log repository

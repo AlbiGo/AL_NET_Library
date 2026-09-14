@@ -11,6 +11,11 @@ SOLID is a set of design guidelines. This repo demos two of them clearly:
 | **ISP** — Interface Segregation | Many small interfaces beat one fat interface |
 | **LSP** — Liskov Substitution | Subtypes must be usable wherever the base type is expected |
 
+### Why this example
+
+- **Printers** — everyone understands “print-only vs scan/fax.” A fat `IMultiFunctionDevice` forces `OldPrinter` to throw; `PrintService(IPrinter)` shows the fix without inventing domain jargon.
+- **Shapes (+ animals)** — area is a contract you can check with a number (`TotalArea == 37`). Animals keep a second, simpler LSP story for movement.
+
 ### How the sample code works
 
 **Sample:** [`samples/SOLID/`](../samples/SOLID/)
@@ -38,6 +43,10 @@ dotnet run --project samples/SOLID
 
 Ensure **one shared instance** and a global access point. Use sparingly; prefer DI lifetimes when you already have a container.
 
+### Why this example
+
+`GetInstance("FOO")` then `GetInstance("BAR")` proves the second call does not overwrite — the classic singleton bug. Threads + eager `LoadBalancer` cover lazy locking vs type-init without needing a real shared cache.
+
 ### How the sample code works
 
 **File:** `samples/DesignPatterns/Creational/Singleton/Singleton.cs`
@@ -56,6 +65,10 @@ Ensure **one shared instance** and a global access point. Use sparingly; prefer 
 
 A creator defines an abstract factory method; subclasses decide which concrete products to build.
 
+### Why this example
+
+**Resume vs Report** documents have different page sets but the same “create document → fill pages” flow. Clients stay on `Document`; subclasses own the product list — the textbook Factory Method shape.
+
 ### How the sample code works
 
 `Document` constructor calls `CreatePages()`. `Resume` and `Report` override it to add different `Page` types. Client code works with `Document` without knowing page lists.
@@ -68,6 +81,10 @@ A creator defines an abstract factory method; subclasses decide which concrete p
 
 Create **families** of related products (e.g. herbivore vs carnivore factories) without binding to concrete classes.
 
+### Why this example
+
+Prey/predator factories make “families of related products” obvious in one line of output (`Wolf eats Bison`). `AnimalWorld` depending on abstract `Factory` shows the client never mentions `new Wolf()`.
+
 ### How the sample code works
 
 `AnimalWorld` depends on abstract `Factory` only. `HerbivoreFactory` / `CarnivoreFactory` supply `Bison` / `Wolf`. Swap factories without changing `AnimalWorld`.
@@ -79,6 +96,10 @@ Create **families** of related products (e.g. herbivore vs carnivore factories) 
 ### What it is
 
 Build a complex object step by step. The director (`Shop`) calls fixed steps; concrete builders (`CarBuilder`, `MotorcycleBuilder`) accumulate different parts.
+
+### Why this example
+
+Vehicles need the same construction order (frame → engine → wheels → doors) but different parts. Running **car and motorcycle** through one `Shop` shows the director stays fixed while the builder swaps.
 
 ### How the sample code works
 
@@ -94,6 +115,10 @@ shop.Construct(new MotorcycleBuilder()).PrintParts();  // same steps, different 
 ### What it is
 
 Swap algorithms behind a common interface at runtime.
+
+### Why this example
+
+**Tax rules** (percentage / flat / progressive) are interchangeable algorithms with the same “calculate” call site. Swapping via `SetStrategy` mirrors how real billing/pricing code changes policy without editing the context.
 
 ### How the sample code works
 

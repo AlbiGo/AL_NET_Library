@@ -10,6 +10,10 @@
 - Clear lifetimes: scoped DbContext per request/unit of work
 - Testability: inject mocks
 
+## Why this example
+
+**Math / economics controller** is a tiny graph (`Controller → Service → Repo → Context`) that still shows every DI idea you need: composition root, lifetimes, constructor injection, and a manual-`new` contrast. A real web app would bury the lesson in frameworks and HTTP noise.
+
 ## How the sample code works
 
 **Sample:** [`samples/Dependency/`](../samples/Dependency/)

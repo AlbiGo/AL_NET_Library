@@ -52,7 +52,7 @@ Samples live under [`samples/`](../samples/).
 
 ## How to use
 
-1. Read **What it is** and **How the sample code works**.
+1. Read **What it is**, **Why this example**, and **How the sample code works**.
 2. Run the sample from the repo root.
 3. Compare Prefer / Avoid with the code you just ran.
 

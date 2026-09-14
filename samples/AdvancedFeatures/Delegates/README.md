@@ -2,6 +2,10 @@
 
 A **delegate** is a type-safe callback: a variable that holds a reference to a method (or several methods) with a matching signature.
 
+## Why this example
+
+A car garage pipeline is an ordered list of void steps from different classes — ideal for showing multicast `+=` and `Invoke` without needing events or DI.
+
 ## Prefer
 
 - Use a named delegate (or `Action` / `Func<>`) when a component should accept “what to do” without knowing the concrete methods

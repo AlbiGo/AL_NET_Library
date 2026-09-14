@@ -6,6 +6,10 @@ CRUD and soft-delete with clear timestamps and navigation handling; load SQL fro
 dotnet run --project samples/DataManagement
 ```
 
+## Why this example
+
+Multi-entity soft-delete forces cascading via EF navigations (the hard part). File SQL + `@params` proves values never enter the SQL string.
+
 ## Do
 
 - Soft-delete with UTC timestamps and EF navigation metadata (`IsCollection` / references)

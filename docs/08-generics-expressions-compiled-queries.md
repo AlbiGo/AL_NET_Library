@@ -6,6 +6,10 @@
 
 **Generics** let you write code once for many types (`List<T>`, `GenericServices<T>`). Constraints (`where T : IMainData`) describe what `T` can do.
 
+### Why this example
+
+`Data1` / `Data2` with a shared `Calculate()` show the Prefer path: put behavior on the type. The old anti-pattern (`switch` + cast on `T`) is exactly what people write when they misuse generics — so the contrast sticks.
+
 ### How the sample code works
 
 **Sample:** [`samples/AdvancedFeatures/Generics/`](../samples/AdvancedFeatures/Generics/)
@@ -28,6 +32,10 @@ The generic helper stays tiny; polymorphism holds the type-specific math.
 
 An **expression tree** (`Expression<Func<…>>`) is a data structure describing code. EF Core can translate it to SQL. Compiling it to a delegate forces **in-memory** execution.
 
+### Why this example
+
+**Student filter** (age + email) is a realistic dynamic Where. Calling `.Compile()` “works” in memory and silently breaks EF translation — the demo exists to make that mistake obvious.
+
 ### How the sample code works
 
 **Sample:** [`samples/AdvancedFeatures/Expressions/`](../samples/AdvancedFeatures/Expressions/)
@@ -48,6 +56,10 @@ students.AsQueryable().InlineFilter(filter);
 
 You can write your own operators with `yield return` for **deferred execution** (work runs when enumerated).
 
+### Why this example
+
+`WherePositive` on a tiny int list is the smallest deferred-operator demo that still shows `yield return` — no EF setup required.
+
 ### How the sample code works
 
 `LinqExt.WherePositive` walks the source and yields only values `> 0`. No extra enumerator tricks — just a clean iterator.
@@ -59,6 +71,10 @@ You can write your own operators with `yield return` for **deferred execution** 
 ### What it is
 
 `EF.CompileQuery` caches a query **shape** so repeated executions with different parameters avoid rebuilding the expression tree every time (useful on hot paths).
+
+### Why this example
+
+A repeated filter (`Name` contains term + `Created` after date) is a classic hot-path shape. Compiling that once shows the API without pretending every query needs it.
 
 ### How the sample code works
 

@@ -6,6 +6,10 @@ Catch only what you handle, rethrow with `throw;` (not `throw ex;`), and don’t
 dotnet run --project samples/Exceptions
 ```
 
+## Why this example
+
+A deliberate throw and nested rethrow make Prefer (`throw;`) vs Avoid (`throw ex;`) visible in the printed stack.
+
 ## What’s here
 
 - Catch / log / continue patterns in `Program.cs`

@@ -8,6 +8,10 @@ Consistent naming and formatting so readers can scan code quickly. Style is enfo
 
 In a teaching repo (and in teams), inconsistent names hide bugs: people misread `async` methods, confuse interfaces with classes, or miss nullability.
 
+## Why these examples
+
+We point at real types from the samples (`ServiceGarage`, `IMathService`, `MakePastaAsync`) instead of inventing fake names — so style rules stay tied to code you can open and run.
+
 ## How it shows up in samples
 
 | Rule | Example in this repo |

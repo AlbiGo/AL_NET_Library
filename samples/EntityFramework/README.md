@@ -6,6 +6,10 @@ Entity Framework Core practices for tracking, detach, and repository-style data 
 dotnet run --project samples/EntityFramework
 ```
 
+## Why this example
+
+Edit → detach → save makes “Change Tracker ignored this” visible in one run.
+
 ## What’s here
 
 - Detach / repository helpers under `Detach/Repository`

@@ -6,6 +6,10 @@ Capturing change history for entities — who changed what, when, and which prop
 dotnet run --project samples/AuditEntry
 ```
 
+## Why this example
+
+Overriding `SaveChangesAsync` is the usual production hook for auditing — property old/new values show why Change Tracker is the right place.
+
 ## What’s here
 
 - `AuditEntry` / `AuditEntryProperty` models

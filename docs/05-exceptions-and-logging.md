@@ -6,6 +6,10 @@
 
 Exceptions signal unexpected failures. Catch only what you can handle; otherwise let them bubble. When rethrowing, use `throw;` so the stack trace stays intact.
 
+### Why this example
+
+A deliberate throw at index `6` and a nested `RethrowDemo` make Prefer (`throw;`) vs Avoid (`throw ex;`) observable in the printed stack — not just described in prose.
+
 ### How the sample code works
 
 **Sample:** [`samples/Exceptions/`](../samples/Exceptions/)
@@ -29,6 +33,10 @@ dotnet run --project samples/Exceptions
 ### What it is
 
 Record meaningful events at **boundaries** (process start, handled failures) with a level/type and message. Business code should not swallow errors silently.
+
+### Why this example
+
+Info → simulated Error → read-back shows the full loop: inject a log service, write at boundaries, then verify persistence — without needing a real logging SaaS.
 
 ### How the sample code works
 

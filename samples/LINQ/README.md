@@ -6,6 +6,10 @@ Keep filters on `IQueryable` so EF can translate to SQL, paginate with `(page - 
 dotnet run --project samples/LINQ
 ```
 
+## Why this example
+
+Filter, pagination, and join are the three LINQ mistakes teams hit most — shown in memory here, with EF versions in `LamdaMethods`.
+
 ## Do
 
 - 1-based pagination: `Skip((page - 1) * size).Take(size)`

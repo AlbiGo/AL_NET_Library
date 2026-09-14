@@ -6,6 +6,10 @@ Do real async (`await` I/O / `Task.Delay`), avoid fake async and `async void`, a
 dotnet run --project samples/Threads
 ```
 
+## Why this example
+
+Cooking steps make independent work vs real dependencies obvious (chop while water boils; pasta waits for water) — so `Join` / `await` ordering is intuitive.
+
 ## Do
 
 - **`Kitchen`** — clear sequential baseline

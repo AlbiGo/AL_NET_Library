@@ -2,6 +2,10 @@
 
 `EF.CompileQuery` translates a LINQ query **once** and reuses that plan with new parameters.
 
+## Why this example
+
+Name + created-date filtering is a repeated hot-path shape — enough to show `CompileQuery` without implying every query should be compiled.
+
 ## How this file works
 
 | Piece | Role |

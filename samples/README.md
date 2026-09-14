@@ -1,6 +1,6 @@
 # Samples
 
-Runnable demos for each best-practice topic. Read Prefer/Avoid in [`docs/`](../../docs/), then run the matching project.
+Runnable demos for each best-practice topic. Read Prefer/Avoid (and **Why this example**) in [`docs/`](../../docs/), then run the matching project.
 
 ```bash
 dotnet run --project samples/DesignPatterns
@@ -21,5 +21,7 @@ dotnet run --project samples/Threads
 | `Logging` | Boundary logging |
 | `Exceptions` | Catch / rethrow |
 | `AdvancedFeatures` | Delegates, events, expressions, generics |
+
+Each sample README has a short **Why this example** section explaining the scenario choice.
 
 Solution folders under **samples** group these the same way in Visual Studio.

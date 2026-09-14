@@ -6,6 +6,11 @@ Small, focused interfaces (ISP), subtypes that honor contracts (LSP), and design
 dotnet run --project samples/SOLID
 ```
 
+## Why these examples
+
+- **Printers** — clear ISP: a print-only device should not be forced to implement Scan/Fax.
+- **Shapes / animals** — LSP is checkable (areas add up; every animal can `Moves()` through `Habitat`).
+
 ## What’s here
 
 - **Interface Segregation** — fat `IMultiFunctionDevice` (Don’t) vs `IPrinter` / `IScanner` + `PrintService` (Do)

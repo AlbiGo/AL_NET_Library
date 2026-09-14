@@ -8,6 +8,10 @@ A **delegate** is a type-safe reference to a method (or several methods) with a 
 
 In modern C# you often use `Action` / `Func<>`; a named delegate is clearer for teaching.
 
+### Why this example
+
+A **garage service pipeline** (engine → tires → oil → transmission) is an ordered list of void steps — perfect for multicast `+=`. You see methods from different classes (`CarServicesLocal`, `CarServiceExtension`) plugged into one `DoService` call without inheritance.
+
 ### How the sample code works
 
 **Sample:** [`samples/AdvancedFeatures/Delegates/`](../samples/AdvancedFeatures/Delegates/)
@@ -44,6 +48,10 @@ Look for the **Delegates** section in the console output.
 ### What it is
 
 An **event** is a restricted multicast delegate. Outside code can only subscribe (`+=`) / unsubscribe (`-=`). Only the declaring type can raise it — that protects the publisher.
+
+### Why this example
+
+**Task created / completed** is a familiar domain event: one publisher, many side effects (UI + email). `TaskEventArgs.Title` shows why `EventHandler<T>` beats empty `EventArgs` when handlers need payload.
 
 ### How the sample code works
 

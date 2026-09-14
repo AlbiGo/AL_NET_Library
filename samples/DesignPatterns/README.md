@@ -8,6 +8,16 @@ dotnet run --project samples/DesignPatterns
 
 Comment out any `Run*Demo()` call in `Program.cs` to focus on one pattern.
 
+## Why these examples
+
+| Pattern | Why we chose it |
+| --- | --- |
+| Singleton | FOO then BAR proves the second create does not overwrite; threads stress locking |
+| Factory Method | Resume/Report page lists make “subclass picks products” obvious |
+| Abstract Factory | Wolf/Bison food chain shows families without `new` in the client |
+| Builder | Car vs motorcycle — same Shop steps, different parts |
+| Strategy | Tax PERC/FLAT/PROG — swap algorithms at the call site |
+
 ## Do
 
 | Pattern | Practice highlighted |
