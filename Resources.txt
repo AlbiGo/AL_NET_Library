@@ -1,2 +1,0 @@
-https://www.thereformedprogrammer.net/ef-core-in-depth-tips-and-techniques-for-configuring-ef-core/
-

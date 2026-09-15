@@ -64,6 +64,10 @@ dotnet run --project samples/Dependency
 
 **Takeaway:** ask for abstractions in the ctor; let the composition root wire concretes.
 
+## Related: Options pattern
+
+Typed settings with `IOptions<T>` live in the same sample — see [10-options-pattern.md](10-options-pattern.md).
+
 ## Prefer
 
 - One composition root; constructor injection; scopes for DbContext-like services

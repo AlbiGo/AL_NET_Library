@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataManagement\DataManagement.csproj" />
-    <ProjectReference Include="..\Dependency\DependencyInjection.csproj" />
+    <ProjectReference Include="..\Dependency\Dependency.csproj" />
   </ItemGroup>
 
 </Project>

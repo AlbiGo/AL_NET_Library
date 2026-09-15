@@ -20,7 +20,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
 		README.md = README.md
-		Resources.txt = Resources.txt
+		LICENSE = LICENSE
+		CONTRIBUTING.md = CONTRIBUTING.md
+		docs\README.md = docs\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesignPatterns", "samples\DesignPatterns\DesignPatterns.csproj", "{F4061100-3C07-45A1-B725-33978CAC31FA}"
@@ -29,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SOLID", "samples\SOLID\SOLI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataManagement", "samples\DataManagement\DataManagement.csproj", "{6955D75B-0A85-42A3-A574-2E7274B89D77}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFrameworkTraining", "samples\EntityFramework\EntityFrameworkTraining.csproj", "{D16152FF-7579-4BF9-8401-8022332CD599}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFramework", "samples\EntityFramework\EntityFramework.csproj", "{D16152FF-7579-4BF9-8401-8022332CD599}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuditEntry", "samples\AuditEntry\AuditEntry.csproj", "{E2700936-E6B1-405A-86AA-7F417E709C64}"
 EndProject
@@ -39,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "samples\Logging\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Threads", "samples\Threads\Threads.csproj", "{A7B4ED58-5389-4BD0-8EB4-7E462129387C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyInjection", "samples\Dependency\DependencyInjection.csproj", "{236B3219-4D5D-4F7E-914B-70CA1EC83956}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dependency", "samples\Dependency\Dependency.csproj", "{236B3219-4D5D-4F7E-914B-70CA1EC83956}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdvancedFeatures", "samples\AdvancedFeatures\AdvancedFeatures.csproj", "{4A046D15-1DB7-44C2-A62E-53BEFBF20C5A}"
 EndProject

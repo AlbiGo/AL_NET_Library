@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dependency.Implementation.Options;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Dependency.Implementation
 {
@@ -7,13 +10,13 @@ namespace Dependency.Implementation
     /// <para>
     /// Rules demonstrated: (1) register interface → implementation once,
     /// (2) build a single <see cref="ServiceProvider"/> and reuse it,
-    /// (3) create scopes when resolving scoped services (DbContext-style lifetimes).
-    /// Controllers like <see cref="EconomicsController"/> never call this for each operation —
-    /// startup configures; request/unit-of-work opens a scope.
+    /// (3) create scopes when resolving scoped services (DbContext-style lifetimes),
+    /// (4) Prefer Options — bind <see cref="PricingOptions"/> from <c>appsettings.json</c>,
+    /// validate, inject <c>IOptions&lt;T&gt;</c>.
     /// </para>
     /// </summary>
     public static class AppServices
-    { 
+    {
         private static readonly object Sync = new object();
         private static ServiceProvider? _provider;
 
@@ -25,6 +28,12 @@ namespace Dependency.Implementation
                 if (_provider != null)
                     return;
 
+                // Prefer: settings live in JSON; composition root loads and binds them.
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(AppContext.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                    .Build();
+
                 var services = new ServiceCollection();
 
                 services.AddScoped<MathDBContext>();
@@ -32,9 +41,21 @@ namespace Dependency.Implementation
                 services.AddScoped<IMathService, MathService>();
                 services.AddTransient<EconomicsController>();
 
+                // Bind "Pricing" section → PricingOptions; validate before the app runs.
+                services.AddOptions<PricingOptions>()
+                    .Bind(configuration.GetSection("Pricing"))
+                    .Validate(o => o.Rate is > 0 and <= 1.0, "PricingOptions.Rate must be in (0, 1].")
+                    .Validate(o => !string.IsNullOrWhiteSpace(o.Currency), "PricingOptions.Currency is required.")
+                    .ValidateOnStart();
+
+                services.AddTransient<PricingService>();
+
                 configure?.Invoke(services);
 
                 _provider = services.BuildServiceProvider();
+
+                // Surface validation errors immediately in this console sample.
+                _ = _provider.GetRequiredService<IOptions<PricingOptions>>().Value;
             }
         }
 
