@@ -10,6 +10,12 @@ dotnet run --project samples/Logging
 
 Info → simulated Error → read-back shows inject → write at boundaries → verify, without a real logging SaaS.
 
+## Explaining `LogService`
+
+Ctor-injected `IExceptionLogRepository`. Log Info at start, catch a simulated failure as Error, then `GetLogs()` to prove persistence. Prefer boundary logging; avoid secrets in messages.
+
+**Takeaway:** inject the log store; log at boundaries; verify you can read it back.
+
 ## What’s here
 
 - `ILogService` / `LogService` and exception log repository

@@ -10,6 +10,13 @@ dotnet run --project samples/Exceptions
 
 A deliberate throw and nested rethrow make Prefer (`throw;`) vs Avoid (`throw ex;`) visible in the printed stack.
 
+## Explaining `throw;` vs `throw ex;`
+
+- `throw;` — same exception, stack preserved (you still see `ThrowInner`)
+- `throw ex;` — stack resets to the catch site (you lose the real origin)
+
+**Takeaway:** after logging/handling, rethrow with `throw;`.
+
 ## What’s here
 
 - Catch / log / continue patterns in `Program.cs`

@@ -6,6 +6,17 @@
 
 Name + created-date filtering is a repeated hot-path shape — enough to show `CompileQuery` without implying every query should be compiled.
 
+## Explaining `CompiledQueryEx`
+
+`FilterQuery` is a `static readonly` `Func<DatabaseContext, string, DateTime, IEnumerable<Entity1>>` built by `EF.CompileQuery` when the type loads.
+
+- **Without compile** — EF rebuilds/translates the same expression tree on every call
+- **With compile** — translation happens once; later calls only bind fresh parameter values
+
+`Filter(context, filter)` just invokes that cached delegate. Pass an **open** `DatabaseContext` — do not open a new context inside the helper and ignore the caller.
+
+**Takeaway:** compile hot-path shapes; pass live context + parameters.
+
 ## How this file works
 
 | Piece | Role |

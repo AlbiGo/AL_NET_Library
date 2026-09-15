@@ -3,13 +3,12 @@
 namespace EntityFramework.Detach.Repository
 {
     /// <summary>
-    /// Minimal repo to demo EF change-tracker states.
-    ///
-    /// Detach → Entry.State = Detached.
-    /// After that, mutating the object in memory does nothing on SaveChanges
-    /// until you Attach/Update again.
-    ///
-    /// Always inject one shared AuditDbContext so Add + Detach hit the same store.
+    /// Minimal repo to demo EF Change Tracker states — focus is <see cref="Detach"/>.
+    /// <para>
+    /// After detach, mutating the object in memory does nothing on <c>SaveChanges</c>
+    /// until you Attach/Update again. Always inject one shared <c>AuditDbContext</c>
+    /// so Add + Detach hit the same in-memory store.
+    /// </para>
     /// </summary>
     public class BaseRepository<T> where T : class
     {

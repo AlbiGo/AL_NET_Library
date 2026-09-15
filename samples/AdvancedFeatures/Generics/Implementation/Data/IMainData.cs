@@ -1,7 +1,11 @@
 ﻿namespace AdvancedFeatures.Generics.Implementation.Data
 {
     /// <summary>
-    /// Contract for economic payloads. GenericServices&lt;T&gt; only needs this surface.
+    /// Contract for economic payloads. <see cref="GenericServices{T}"/> only needs this surface.
+    /// <para>
+    /// Put behavior on the type via <see cref="Calculate"/> — that is what keeps the generic helper tiny
+    /// and free of <c>switch</c>/<c>as</c> on <c>T</c>.
+    /// </para>
     /// </summary>
     public interface IMainData
     {

@@ -18,6 +18,16 @@ Comment out any `Run*Demo()` call in `Program.cs` to focus on one pattern.
 | Builder | Car vs motorcycle — same Shop steps, different parts |
 | Strategy | Tax PERC/FLAT/PROG — swap algorithms at the call site |
 
+## Explaining the key types
+
+| Pattern | Key type | What to remember |
+| --- | --- | --- |
+| Singleton | `Singleton` / `LoadBalancer` | Init once; second `GetInstance` does not overwrite; prefer DI when you have a container |
+| Factory Method | `Document` | Base decides *when*; subclass decides *which* pages |
+| Abstract Factory | `AnimalWorld` | Depends on abstract `Factory` — never `new Wolf()` in the client |
+| Builder | `Shop` | Fixed construction order; swap `CarBuilder` / `MotorcycleBuilder` |
+| Strategy | `TaxCalculateContext` | Holds `ICalculateTax`; `SetStrategy` changes algorithm |
+
 ## Do
 
 | Pattern | Practice highlighted |

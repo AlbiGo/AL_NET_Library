@@ -22,7 +22,13 @@ GenericServices<Data1>.Calculate(data1);  // calls data1.Calculate()
 GenericServices<Data2>.Calculate(data2);  // calls data2.Calculate()
 ```
 
-The generic helper stays tiny; polymorphism holds the type-specific math.
+### Explaining `GenericServices<T>`
+
+The helper is deliberately tiny: `where T : IMainData` then `data.Calculate()`. It does not know about `Data1` or `Data2`. Polymorphism supplies the math.
+
+If you `switch` on `T` or cast inside the generic method, you have lost the benefit — every new type forces edits to the “generic” helper.
+
+**Takeaway:** constrain `T`, call members on the constraint, let subtypes implement behavior.
 
 ---
 
@@ -46,7 +52,13 @@ students.AsQueryable().InlineFilter(filter);
 // NOT: query.Where(filterExp.Compile())                   // client-side only
 ```
 
-`FilterBy` shows the alternative style: add optional `Where` clauses one at a time (often clearer for EF).
+### Explaining `ExpressionTrees`
+
+`CreateExpressionTreeFromFilter` builds an `Expression<Func<Student, bool>>` — a tree of nodes, not a running method. Pass that tree to `IQueryable.Where` so EF (or LINQ-to-Objects via `AsQueryable`) can interpret it.
+
+`.Compile()` turns the tree into a normal `Func<>`. That is fine for in-memory lists typed as `IEnumerable`, but on EF `IQueryable` it pulls data client-side (or fails translation). Prefer keep the `Expression`.
+
+**Takeaway:** expression = data for providers; compiled delegate = in-memory only.
 
 ---
 
@@ -63,6 +75,12 @@ You can write your own operators with `yield return` for **deferred execution** 
 ### How the sample code works
 
 `LinqExt.WherePositive` walks the source and yields only values `> 0`. No extra enumerator tricks — just a clean iterator.
+
+### Explaining `LinqExt.WherePositive`
+
+Until someone `foreach`es (or `ToList`s) the result, the loop body does not run. Each `yield return` pauses and hands one value to the caller — same deferred idea as LINQ’s `Where`.
+
+**Takeaway:** custom operators are normal methods + `yield`; laziness is free.
 
 ---
 
@@ -87,6 +105,14 @@ private static readonly Func<DatabaseContext, string, DateTime, IEnumerable<Enti
 ```
 
 Call `CompiledQueryEx.Filter(context, filter)` with an open `DatabaseContext`.
+
+### Explaining `CompiledQueryEx`
+
+`FilterQuery` is a `static readonly` compiled delegate built once at type load. Later calls only pass a live context and parameter values — EF does not re-translate the same shape every time.
+
+Use this for hot paths you run often; skip it for one-off queries (complexity for little gain).
+
+**Takeaway:** compile the shape once; reuse with new parameters.
 
 ---
 

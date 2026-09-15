@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Logging.Services
 {
     /// <summary>
-    /// Writes / reads Log rows through a repository.
-    ///
-    /// Constructor injection: the DI container supplies IExceptionLogRepository.
-    /// Do not call a service locator inside the constructor when ctor injection is available.
+    /// Boundary logging service — Prefer ctor injection of the log store.
+    /// <para>
+    /// The DI container supplies <see cref="IExceptionLogRepository"/>.
+    /// Log at process boundaries (Info start, Error on handled failure), then read back via
+    /// <see cref="GetLogs"/>. Do not call a service locator inside the constructor when ctor injection is available.
+    /// </para>
     /// </summary>
     public class LogService : ILogService
     {

@@ -54,6 +54,16 @@ dotnet run --project samples/Dependency
 
 `Program.cs` calls `AppServices.Configure()`, opens a **scope**, resolves `EconomicsController`, and runs a calculation. The scope is disposed afterward so scoped services are cleaned up.
 
+### Explaining `EconomicsController` vs `EconomicsControllerV2`
+
+**Prefer — `EconomicsController`:** constructor takes `IMathService`. The container builds `MathService` → `MathRepo` → `MathDBContext`. The controller never calls `new` on its collaborators.
+
+**Avoid — `EconomicsControllerV2`:** ctor manually `new`s the whole graph. Fine for three types; every constructor change ripples through this class as the app grows.
+
+`AppServices` is the composition root: register once, build one `ServiceProvider`, resolve inside scopes.
+
+**Takeaway:** ask for abstractions in the ctor; let the composition root wire concretes.
+
 ## Prefer
 
 - One composition root; constructor injection; scopes for DbContext-like services

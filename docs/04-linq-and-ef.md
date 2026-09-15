@@ -27,6 +27,12 @@ EF-backed versions of filter/join/pagination live in `Lamda/LamdaMethods.cs`:
 - `GetWhere` / `GetAllPagination` — correct skip math
 - `GetJoin` — projects **both** join sides into a DTO (does not discard `entity2`)
 
+### Explaining pagination and joins
+
+**Pagination:** page numbers are 1-based for humans. Offset is `(page - 1) * size`. `Skip(page)` when `page` is a page number skips the wrong number of rows.
+
+**Joins:** if the projection keeps only `entity1`, you cannot use `entity2` afterward. Project both sides (or a DTO) when both matter.
+
 ```bash
 dotnet run --project samples/LINQ
 ```
@@ -53,6 +59,10 @@ Related entities (`Entity1`…`Entity4`) force the hard part of soft-delete: cas
 
 `BaseRepository` uses EF metadata (`navigation.IsCollection`) rather than fragile type-name checks, and stamps times in **UTC**.
 
+### Explaining soft-delete
+
+Hard-delete removes rows. Soft-delete marks `Deleted` (and usually `Updated`) so history stays queryable. Cascading through navigations with EF metadata is the hard part this sample exists to show.
+
 ```bash
 dotnet run --project samples/DataManagement
 ```
@@ -72,6 +82,10 @@ A file-based query with `@nameParam` mirrors how production ADO.NET/Dapper apps 
 ### How the sample code works
 
 `QueryBuilder.BuildQuery` returns `BuiltQuery` with `Sql` + `Parameters`. The sample SQL uses `@nameParam`; the value is bound separately via `CreateCommand`.
+
+### Explaining `QueryBuilder`
+
+SQL text stays in a file (or constant). Values never enter the string — they travel as parameters. That blocks injection and keeps plans reusable.
 
 ---
 
@@ -97,6 +111,10 @@ await repo.SaveChanges();  // change does NOT persist
 
 One shared `AuditDbContext("detach-demo")` is passed into the repository so all operations hit the same in-memory store.
 
+### Explaining detach
+
+Tracked entities are saved. Detached entities are ignored by `SaveChanges`. Use detach when you want a local copy that must not write back.
+
 ```bash
 dotnet run --project samples/EntityFramework
 ```
@@ -118,6 +136,10 @@ Overriding `SaveChangesAsync` is how many apps add auditing without scattering l
 **Sample:** [`samples/AuditEntry/`](../samples/AuditEntry/)
 
 `AuditDbContext.SaveChangesAsync` overrides the base method, walks `ChangeTracker` entries, and inserts `AuditEntry` + `AuditEntryProperty` rows before calling `base.SaveChangesAsync`.
+
+### Explaining `AuditDbContext`
+
+Centralizing audit in `SaveChangesAsync` means services do not sprinkle log calls after every update. Old/new property values come from the Change Tracker — the right hook for “what changed.”
 
 ```bash
 dotnet run --project samples/AuditEntry

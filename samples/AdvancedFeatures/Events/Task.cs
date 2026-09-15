@@ -1,7 +1,11 @@
 ﻿namespace AdvancedFeatures.Events
 {
     /// <summary>
-    /// Demo work item. Named TaskItem so it does not clash with System.Threading.Tasks.Task.
+    /// Demo work item passed into <see cref="TaskService"/>.
+    /// <para>
+    /// Named <c>TaskItem</c> so it does not clash with <c>System.Threading.Tasks.Task</c>.
+    /// Title is copied into <see cref="TaskEventArgs"/> when events are raised.
+    /// </para>
     /// </summary>
     public class TaskItem
     {

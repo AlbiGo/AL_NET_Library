@@ -4,10 +4,15 @@ using AdvancedFeatures.Expressions;
 using AdvancedFeatures.Generics.Implementation;
 using AdvancedFeatures.Generics.Implementation.Data;
 using AdvancedFeatures.Linq;
+using AdvancedFeatures.Reflection;
 
 /// <summary>
-/// Extra garage step from another class — still attachable to CarServiceDelegate
-/// because TransmissionService has signature void ().
+/// Extra garage step from another class — still attachable to <c>CarServiceDelegate</c>
+/// because <see cref="TransmissionService"/> has signature <c>void ()</c>.
+/// <para>
+/// Proves delegates care about shape, not hierarchy: this type sits next to
+/// <see cref="AdvancedFeatures.Delegates.CarServices"/> in the same multicast pipeline.
+/// </para>
 /// </summary>
 public class CarServiceExtension
 {
@@ -27,14 +32,14 @@ internal class Program
         RunExpressionTreesDemo();
         RunGenericsDemo();
         RunLinqDemo();
+        RunReflectionDemo();
     }
 
     private static void RunDelegatesDemo()
     {
         Console.WriteLine("=== Delegates ===");
-        // Multicast pipeline: += adds methods; Invoke runs them in order; then Deliver().
         var car = new Car { Name = "Evo" };
-        var services = new CarServicesLocal(car);
+        var services = new CarServices(car);
         var garage = new ServiceGarage(car);
         var extension = new CarServiceExtension(car);
 
@@ -50,7 +55,6 @@ internal class Program
     private static void RunEventsDemo()
     {
         Console.WriteLine("=== Events ===");
-        // Publisher raises; many subscribers handle. Only TaskService can Invoke the event.
         var taskService = new TaskService();
         var app = new AppService();
         var email = new EmailService();
@@ -69,8 +73,6 @@ internal class Program
     private static void RunExpressionTreesDemo()
     {
         Console.WriteLine("=== Expression trees ===");
-        // AsQueryable + InlineFilter keeps Expression trees (SQL-translatable style).
-        // Do not .Compile() before Where on IQueryable.
         var students = new List<Student>
         {
             new() { StudentID = 1, StudentName = "Albus", Age = 23, Email = "Albus@gmail.com" },
@@ -90,7 +92,6 @@ internal class Program
     private static void RunGenericsDemo()
     {
         Console.WriteLine("=== Generics ===");
-        // GenericServices&lt;T&gt; calls data.Calculate() — Data1/Data2 supply the math.
         var data1 = new Data1();
         var data2 = new Data2();
         GenericServices<Data1>.Calculate(data1);
@@ -103,11 +104,29 @@ internal class Program
     private static void RunLinqDemo()
     {
         Console.WriteLine("=== Custom LINQ ===");
-        // WherePositive uses yield return (deferred until foreach).
         var numbers = new List<int> { 1, -11, -2, 4 };
         foreach (var n in numbers.WherePositive())
         {
             Console.WriteLine(n);
         }
+
+        Console.WriteLine();
+    }
+
+    private static void RunReflectionDemo()
+    {
+        Console.WriteLine("=== Reflection ===");
+        // Prefer: discover [Plugin] + IPlugin — Main never new HelloPlugin().
+        foreach (var plugin in PluginScanner.Discover(typeof(PluginScanner).Assembly))
+        {
+            Console.WriteLine(plugin.Describe());
+        }
+
+        Console.WriteLine();
+        // Prefer direct / cached reflection; Avoid uncached magic strings.
+        var person = new Person { Name = "Ada", Age = 36 };
+        Console.WriteLine($"Direct:            {PropertyAccessDemo.PreferDirect(person)}");
+        Console.WriteLine($"Cached reflection: {PropertyAccessDemo.PreferCachedReflection(person)}");
+        Console.WriteLine($"Avoid (uncached):  {PropertyAccessDemo.AvoidUncachedMagicString(person)}");
     }
 }

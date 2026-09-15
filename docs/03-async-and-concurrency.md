@@ -37,6 +37,18 @@ pourPasta.Start();
 
 Same dependency graph using `await Task.Delay(...)` (true async). Methods return `Task` and are named `*Async`.
 
+### Explaining the kitchen demos
+
+| Type | Role |
+| --- | --- |
+| `Kitchen` | Sequential baseline — every step waits for the previous |
+| `KitchenThread` | Overlap independent work; `Join` only where order matters |
+| `KitchenAsync` | Same graph with `await Task.Delay` — frees the thread while waiting |
+
+Boil water and chop ingredients can overlap; pouring pasta must wait for boiled water. That dependency is why `Join` / `await` exist in the sample.
+
+**Takeaway:** overlap what is independent; express real ordering explicitly.
+
 ```bash
 dotnet run --project samples/Threads
 ```

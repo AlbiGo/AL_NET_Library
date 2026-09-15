@@ -2,35 +2,34 @@
 {
     /// <summary>
     /// Lazy, thread-safe Singleton via double-checked locking.
-    /// One shared instance for the whole process; Value is set only on first create.
+    /// <para>
+    /// One shared instance for the whole process. <see cref="Value"/> is set <b>only on first create</b> —
+    /// later <c>GetInstance("BAR")</c> still returns the original value. That proves the classic
+    /// “init once” rule. Prefer DI lifetimes when you already have a container; use sparingly.
+    /// See also eager <c>LoadBalancer</c> (no lock — type init is thread-safe).
+    /// </para>
     /// </summary>
     public class Singleton
     {
         private static Singleton? _instance;
         private static readonly object _lockObject = new object();
 
-        // Clients cannot call new Singleton() — forces GetInstance.
         private Singleton() { }
 
         public string? Value { get; private set; }
 
         /// <summary>
         /// Returns the single instance.
-        /// <paramref name="value"/> is applied only when the instance is first created;
-        /// later calls ignore it (same instance, original Value).
+        /// <paramref name="value"/> applies only when the instance is first created; later calls ignore it.
         /// </summary>
         public static Singleton GetInstance(string value)
         {
-            // Fast path: already created — no lock.
             if (_instance == null)
             {
                 lock (_lockObject)
                 {
-                    // Second check: another thread may have created it while we waited.
                     if (_instance == null)
-                    {
                         _instance = new Singleton { Value = value };
-                    }
                 }
             }
 

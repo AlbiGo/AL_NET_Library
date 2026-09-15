@@ -10,6 +10,16 @@ dotnet run --project samples/Threads
 
 Cooking steps make independent work vs real dependencies obvious (chop while water boils; pasta waits for water) — so `Join` / `await` ordering is intuitive.
 
+## Explaining the kitchen demos
+
+| Type | Role |
+| --- | --- |
+| `Kitchen` | Sequential baseline |
+| `KitchenThread` | Overlap independent steps; `Join` where order matters |
+| `KitchenAsync` | Same graph with `await Task.Delay` (true async) |
+
+**Takeaway:** overlap what is independent; name async methods `*Async`; never fake `async` without `await`.
+
 ## Do
 
 - **`Kitchen`** — clear sequential baseline

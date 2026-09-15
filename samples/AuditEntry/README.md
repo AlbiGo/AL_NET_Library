@@ -10,6 +10,12 @@ dotnet run --project samples/AuditEntry
 
 Overriding `SaveChangesAsync` is the usual production hook for auditing — property old/new values show why Change Tracker is the right place.
 
+## Explaining `AuditDbContext`
+
+Before `base.SaveChangesAsync`, walk Change Tracker entries, write `AuditEntry` + property old/new rows. Services stay free of scattershot audit calls.
+
+**Takeaway:** audit at the save boundary; use tracker for old/new values.
+
 ## What’s here
 
 - `AuditEntry` / `AuditEntryProperty` models

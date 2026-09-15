@@ -4,14 +4,13 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace AuditEntry
 {
     /// <summary>
-    /// In-memory EF context that writes an audit trail on every SaveChangesAsync.
-    ///
-    /// Flow:
-    /// 1. ChangeTracker lists Added/Modified/Deleted entities (skip audit tables themselves).
-    /// 2. For each, create AuditEntry + AuditEntryProperty (old/new values).
-    /// 3. Then call base.SaveChangesAsync so business rows AND audit rows persist together.
-    ///
-    /// Use the same databaseName string when multiple components must share one in-memory DB.
+    /// In-memory EF context that writes an audit trail on every <see cref="SaveChangesAsync"/>.
+    /// <para>
+    /// Prefer hook: override save, walk Change Tracker (Added/Modified/Deleted), write
+    /// <see cref="AuditEntry"/> + property old/new values, then <c>base.SaveChangesAsync</c>
+    /// so business rows and audit rows persist together. Services stay free of scattershot audit calls.
+    /// Use the same <c>databaseName</c> when multiple components must share one in-memory DB.
+    /// </para>
     /// </summary>
     public class AuditDbContext : DbContext
     {

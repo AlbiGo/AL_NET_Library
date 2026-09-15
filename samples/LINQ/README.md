@@ -10,6 +10,14 @@ dotnet run --project samples/LINQ
 
 Filter, pagination, and join are the three LINQ mistakes teams hit most — shown in memory here, with EF versions in `LamdaMethods`.
 
+## Explaining pagination and joins
+
+- **Pagination:** humans use 1-based pages → `Skip((page - 1) * size).Take(size)`. Never `Skip(page)` for a page number.
+- **Joins:** project both sides (or a DTO). Discarding `entity2` in the select makes related data unreachable.
+- **Filters:** keep predicates on `IQueryable`; null/empty-safe name checks.
+
+**Takeaway:** correct skip math + keep both join sides + stay on `IQueryable` for EF.
+
 ## Do
 
 - 1-based pagination: `Skip((page - 1) * size).Take(size)`

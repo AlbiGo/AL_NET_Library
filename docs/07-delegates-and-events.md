@@ -10,14 +10,14 @@ In modern C# you often use `Action` / `Func<>`; a named delegate is clearer for 
 
 ### Why this example
 
-A **garage service pipeline** (engine → tires → oil → transmission) is an ordered list of void steps — perfect for multicast `+=`. You see methods from different classes (`CarServicesLocal`, `CarServiceExtension`) plugged into one `DoService` call without inheritance.
+A **garage service pipeline** (engine → tires → oil → transmission) is an ordered list of void steps — perfect for multicast `+=`. You see methods from different classes (`CarServices`, `CarServiceExtension`) plugged into one `DoService` call without inheritance.
 
 ### How the sample code works
 
 **Sample:** [`samples/AdvancedFeatures/Delegates/`](../samples/AdvancedFeatures/Delegates/)
 
 1. `ServiceGarage` defines `CarServiceDelegate` = `void ()`
-2. `CarServicesLocal` methods (`EngineService`, `TireChange`, …) match that signature
+2. `CarServices` methods (`EngineService`, `TireChange`, …) match that signature
 3. `Program` builds a **multicast** pipeline with `+=`, then `DoService` invokes the chain and delivers the car:
 
 ```csharp
@@ -29,6 +29,30 @@ garage.DoService(pipeline);  // Invoke all, then Deliver()
 ```
 
 `DoService` uses `carServiceDelegate?.Invoke()` so a null pipeline is safe.
+
+### Explaining `CarServices`
+
+`CarServices` is not the “smart” part of the demo — it is the **work** the delegate points at.
+
+It holds one `Car` and exposes simple steps (`EngineService`, `TireChange`, `OilChange`). Each is `void` with no args — the same shape as `CarServiceDelegate` / `Action`.
+
+That simplicity is the point. Delegates care about **signature**, not inheritance:
+
+- matching methods can be stored in a delegate variable
+- combined with `+=` into a multicast pipeline
+- mixed across classes (e.g. `CarServiceExtension.TransmissionService`)
+
+```text
+CarServices.EngineService  ─┐
+CarServices.TireChange     ─┼─►  CarServiceDelegate pipeline  ─►  DoService()  ─►  Car.Deliver()
+CarServices.OilChange      ─┘
+```
+
+`DoService` never calls `OilChange` by name — it invokes the pipeline. New steps can be added without changing the garage.
+
+**Takeaway:** matching methods become a type-safe, reorderable checklist.
+
+More detail: [`samples/AdvancedFeatures/Delegates/README.md`](../samples/AdvancedFeatures/Delegates/README.md).
 
 ```bash
 dotnet run --project samples/AdvancedFeatures
@@ -68,6 +92,14 @@ taskService.PrepareTask(work);  // both handlers run; each reads e.Title
 ```
 
 The model is named `TaskItem` so it does not clash with `System.Threading.Tasks.Task`.
+
+### Explaining `TaskService`
+
+`TaskService` owns the events. Subscribers may only `+=` / `-=`; they cannot `Invoke` or clear the list. That is the difference from a public delegate field.
+
+`PrepareTask` does real work, then calls `OnTaskCreated` with `TaskEventArgs` so handlers learn *which* task changed. `AppService` and `EmailService` are parallel listeners — same raise, different side effects.
+
+**Takeaway:** publisher raises once; many handlers react; payload travels in `EventArgs`.
 
 ### Prefer / Avoid
 

@@ -1,18 +1,17 @@
 ﻿namespace DesignPatterns.Creational.Factory_Method
 {
     /// <summary>
-    /// Factory Method: the base type defines WHEN pages are created (ctor → CreatePages).
-    /// Subclasses decide WHICH page products to add.
+    /// Factory Method creator — defines <b>when</b> pages are created (ctor → <see cref="CreatePages"/>).
+    /// <para>
+    /// Subclasses (<see cref="Resume"/>, <see cref="Report"/>) decide <b>which</b> page products to add.
+    /// Clients work with <c>Document</c> and never branch on concrete page lists.
+    /// </para>
     /// </summary>
     public abstract class Document
     {
         private readonly List<Page> _pages = new();
 
-        protected Document()
-        {
-            // Template step: always create pages on construction.
-            CreatePages();
-        }
+        protected Document() => CreatePages();
 
         public List<Page> pages => _pages;
 

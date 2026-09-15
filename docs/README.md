@@ -49,10 +49,11 @@ Samples live under [`samples/`](../samples/).
 | [Generics](08-generics-expressions-compiled-queries.md#generics) | `samples/AdvancedFeatures/Generics/` |
 | [Custom LINQ / yield](08-generics-expressions-compiled-queries.md#custom-linq) | `samples/AdvancedFeatures/Linq/` |
 | [Compiled queries](08-generics-expressions-compiled-queries.md#compiled-queries) | `samples/AdvancedFeatures/CompiledQueries/` |
+| [Reflection](09-reflection.md) | `samples/AdvancedFeatures/Reflection/` |
 
 ## How to use
 
-1. Read **What it is**, **Why this example**, and **How the sample code works**.
+1. Read **What it is**, **Why this example**, and **Explaining …** (key types).
 2. Run the sample from the repo root.
 3. Compare Prefer / Avoid with the code you just ran.
 

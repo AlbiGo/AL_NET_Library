@@ -4,10 +4,13 @@ using System.Data.Common;
 namespace DataManagement.Queries
 {
     /// <summary>
-    /// Safe raw-SQL helper:
-    /// 1. Read .sql file (keeps SQL out of C# strings).
-    /// 2. Keep @placeholders in the text.
-    /// 3. Bind values as DbParameter — never string.Replace values into SQL.
+    /// Safe raw-SQL helper — Prefer parameterized queries.
+    /// <para>
+    /// (1) Read <c>.sql</c> file (keeps SQL out of C# strings).
+    /// (2) Keep <c>@placeholders</c> in the text.
+    /// (3) Bind values as parameters — never <c>string.Replace</c> user values into SQL.
+    /// That is the whole lesson; the return type is SQL text + parameter dictionary.
+    /// </para>
     /// </summary>
     public static class QueryBuilder
     {

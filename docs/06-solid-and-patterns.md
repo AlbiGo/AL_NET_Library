@@ -31,6 +31,14 @@ new PrintService(new Photocopier()).Run("Invoice");
 
 **LSP** — `AreaCalculator.TotalArea` accepts any `Shape` (`Rectangle`, `Square`). `Habitat.MakeAnimalMove(Animal)` works for `Bird` / `Fish` the same way.
 
+### Explaining `PrintService` and `AreaCalculator`
+
+**ISP — `PrintService(IPrinter)`:** callers that only print never see Scan/Fax. `SimplePrinter` implements just `IPrinter`; `Photocopier` can implement both without forcing print-only clients to care.
+
+**LSP — `AreaCalculator`:** any `Shape` must return a sensible area. `Rectangle` and `Square` are interchangeable here — that is the substitution rule in one number (`TotalArea == 37`).
+
+**Takeaway:** depend on small surfaces; subtypes must honor the base contract.
+
 ```bash
 dotnet run --project samples/SOLID
 ```
@@ -57,6 +65,10 @@ Ensure **one shared instance** and a global access point. Use sparingly; prefer 
 
 `LoadBalancer` shows an **eager** singleton (`static readonly` instance) — no lock needed because type initialization is thread-safe.
 
+### Explaining `Singleton`
+
+Lazy + lock protects concurrent first access. The second argument to `GetInstance` is ignored after creation — that is intentional teaching of “init once.” Prefer DI lifetimes when you already have a container; use Singleton sparingly for true process-wide state.
+
 ---
 
 ## Factory Method
@@ -73,6 +85,10 @@ A creator defines an abstract factory method; subclasses decide which concrete p
 
 `Document` constructor calls `CreatePages()`. `Resume` and `Report` override it to add different `Page` types. Client code works with `Document` without knowing page lists.
 
+### Explaining `Document`
+
+The base type defines *when* pages are created; subclasses define *which* pages. Clients loop `document.pages` without branching on Resume vs Report.
+
 ---
 
 ## Abstract Factory
@@ -88,6 +104,10 @@ Prey/predator factories make “families of related products” obvious in one l
 ### How the sample code works
 
 `AnimalWorld` depends on abstract `Factory` only. `HerbivoreFactory` / `CarnivoreFactory` supply `Bison` / `Wolf`. Swap factories without changing `AnimalWorld`.
+
+### Explaining `AnimalWorld`
+
+Constructor takes two `Factory` abstractions. `RunFoodChain` only calls `CreateAnimal()`. Swap concrete factories to change the ecosystem without editing the world class.
 
 ---
 
@@ -108,6 +128,10 @@ shop.Construct(new CarBuilder()).PrintParts();
 shop.Construct(new MotorcycleBuilder()).PrintParts();  // same steps, different product
 ```
 
+### Explaining `Shop`
+
+`Shop` is the director — fixed step order. Builders accumulate parts. Same construction recipe, different products.
+
 ---
 
 ## Strategy
@@ -123,6 +147,10 @@ Swap algorithms behind a common interface at runtime.
 ### How the sample code works
 
 `TaxCalculateContext` holds `ICalculateTax`. The demo calls `SetStrategy` to swap PERC → FLAT → PROG at runtime without editing the context class.
+
+### Explaining `TaxCalculateContext`
+
+The context depends on `ICalculateTax`, not on PERC/FLAT/PROG classes. Change behavior by injecting or `SetStrategy` — never by editing the context’s `Calculate` method.
 
 ```bash
 dotnet run --project samples/DesignPatterns

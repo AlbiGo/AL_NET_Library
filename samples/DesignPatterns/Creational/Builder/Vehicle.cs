@@ -1,6 +1,6 @@
 ﻿namespace DesignPatterns.Creational.Builder
 {
-    /// <summary>Product assembled step by step.</summary>
+    /// <summary>Product assembled step by step — a list of part names for the demo.</summary>
     public class Vehicle
     {
         internal List<string> Parts { get; } = new();
@@ -8,13 +8,11 @@
         public void PrintParts()
         {
             foreach (var part in Parts)
-            {
                 Console.WriteLine($"  - {part}");
-            }
         }
     }
 
-    /// <summary>Builder steps shared by every vehicle type.</summary>
+    /// <summary>Builder steps shared by every vehicle type (frame, engine, wheels, doors).</summary>
     public abstract class VehicleBuilder
     {
         public abstract void BuildDoors();
@@ -24,6 +22,7 @@
         public abstract Vehicle GetVehicle();
     }
 
+    /// <summary>Concrete builder — car parts. Same <see cref="Shop"/> steps as <see cref="MotorcycleBuilder"/>.</summary>
     public class CarBuilder : VehicleBuilder
     {
         private readonly Vehicle _car = new();
@@ -35,7 +34,7 @@
         public override Vehicle GetVehicle() => _car;
     }
 
-    /// <summary>Second concrete builder — same Shop steps, different product.</summary>
+    /// <summary>Second concrete builder — bike parts from the same director recipe.</summary>
     public class MotorcycleBuilder : VehicleBuilder
     {
         private readonly Vehicle _bike = new();
@@ -48,8 +47,11 @@
     }
 
     /// <summary>
-    /// Director — fixed construction order.
-    /// Pass CarBuilder or MotorcycleBuilder to get different results from the same steps.
+    /// Director — fixed construction order; not the part list itself.
+    /// <para>
+    /// Pass <see cref="CarBuilder"/> or <see cref="MotorcycleBuilder"/> to get different products
+    /// from the same steps. Same split as garage vs <c>CarServices</c>: orchestration vs work.
+    /// </para>
     /// </summary>
     public class Shop
     {

@@ -10,6 +10,12 @@ dotnet run --project samples/EntityFramework
 
 Edit → detach → save makes “Change Tracker ignored this” visible in one run.
 
+## Explaining detach
+
+A tracked entity’s property edits are saved by `SaveChanges`. After `Detach`, the same edits are local only — the tracker no longer owns the instance.
+
+**Takeaway:** be explicit about entity state when you do not want a write-back.
+
 ## What’s here
 
 - Detach / repository helpers under `Detach/Repository`

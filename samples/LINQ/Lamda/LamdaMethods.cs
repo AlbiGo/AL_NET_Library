@@ -4,8 +4,12 @@ using DataManagement.Entities;
 namespace LINQ.Lamda
 {
     /// <summary>
-    /// EF-backed LINQ helpers. Keep returning IQueryable so callers can compose
-    /// and EF can translate to SQL (do not ToList too early).
+    /// EF-backed LINQ helpers — Prefer rules for filter, pagination, and joins.
+    /// <para>
+    /// Keep returning <c>IQueryable</c> so callers can compose and EF can translate to SQL
+    /// (do not <c>ToList</c> too early). Pagination uses 1-based pages:
+    /// <c>Skip((page - 1) * size)</c> — never <c>Skip(page)</c>. Joins project both sides into a DTO.
+    /// </para>
     /// </summary>
     public class LamdaMethods
     {

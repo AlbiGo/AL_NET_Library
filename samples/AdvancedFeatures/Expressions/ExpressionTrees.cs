@@ -3,27 +3,30 @@
 namespace AdvancedFeatures.Expressions
 {
     /// <summary>
-    /// Expression trees describe code as data.
-    /// EF Core (and other IQueryable providers) can translate Expression&lt;Func&lt;...&gt;&gt; to SQL.
-    /// Calling .Compile() turns the tree into a normal delegate — that runs in memory only.
+    /// Expression-tree demo — code as data, not as a running method.
+    /// <para>
+    /// EF Core (and other <c>IQueryable</c> providers) can translate
+    /// <c>Expression&lt;Func&lt;…&gt;&gt;</c> to SQL. Calling <c>.Compile()</c> turns the tree into a
+    /// normal delegate that runs <b>in memory only</b> — that is the mistake this sample exists to show.
+    /// Prefer <see cref="InlineFilter"/> / pass the expression to <c>Where</c>; avoid
+    /// <c>query.Where(expr.Compile())</c> on EF queries.
+    /// </para>
     /// </summary>
     public static class ExpressionTrees
     {
         /// <summary>
-        /// Simplest form: a lambda assigned to Expression&lt;...&gt; is stored as a tree, not executed yet.
+        /// Simplest form: a lambda assigned to <c>Expression&lt;…&gt;</c> is stored as a tree, not executed yet.
         /// </summary>
         public static Expression<Func<int, int, int>> CreateExpressionTreeFromLambdaExpression()
         {
-            // Because the variable type is Expression<...>, the compiler builds a tree
-            // (nodes for parameters, add, etc.) instead of a runnable method.
             Expression<Func<int, int, int>> sumExpressionTree = (number1, number2) => number1 + number2;
             return sumExpressionTree;
         }
 
         /// <summary>
         /// Builds one predicate expression from optional filter fields.
-        /// Locals (age/email/fullName) are captured into the tree as constant-like values
-        /// so providers can parameterize them.
+        /// Locals are captured into the tree so providers can parameterize them.
+        /// Still an Expression — NOT compiled. Safe for <c>IQueryable.Where</c>.
         /// </summary>
         public static Expression<Func<Student, bool>> CreateExpressionTreeFromFilter(StudentFilter filter)
         {
@@ -31,7 +34,6 @@ namespace AdvancedFeatures.Expressions
             var email = filter.Email;
             var fullName = filter.FullName;
 
-            // Still an Expression — NOT compiled. Safe to pass to IQueryable.Where.
             return p =>
                 (age == null || p.Age >= age) &&
                 (string.IsNullOrEmpty(email) || p.Email.Contains(email)) &&
@@ -39,25 +41,21 @@ namespace AdvancedFeatures.Expressions
         }
 
         /// <summary>
-        /// Applies the filter while keeping the query as IQueryable.
-        /// Wrong: query.Where(expr.Compile()) — forces client-side enumeration.
-        /// Right: query.Where(expr) — provider may translate to SQL.
+        /// Applies the filter while keeping the query as <c>IQueryable</c>.
+        /// Wrong: <c>query.Where(expr.Compile())</c> — forces client-side enumeration.
+        /// Right: <c>query.Where(expr)</c> — provider may translate to SQL.
         /// </summary>
         public static IQueryable<Student> InlineFilter(this IQueryable<Student> query, StudentFilter filter)
-        {
-            return query.Where(CreateExpressionTreeFromFilter(filter));
-        }
+            => query.Where(CreateExpressionTreeFromFilter(filter));
 
         /// <summary>
-        /// Alternative style: add a Where only when that criterion is present.
+        /// Alternative style: add a <c>Where</c> only when that criterion is present.
         /// Often easier for EF to translate than one big expression with many ORs.
         /// </summary>
         public static IQueryable<Student> FilterBy(this IQueryable<Student> query, StudentFilter filter)
         {
             if (filter.Age is int age)
-            {
                 query = query.Where(p => p.Age >= age);
-            }
 
             if (!string.IsNullOrEmpty(filter.Email))
             {

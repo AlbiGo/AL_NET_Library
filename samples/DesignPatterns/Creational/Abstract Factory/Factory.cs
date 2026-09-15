@@ -1,7 +1,8 @@
 ﻿namespace DesignPatterns.Creational.Abstract_Factory
 {
     /// <summary>
-    /// Abstract Factory: client depends on <see cref="Factory"/>, not on Wolf/Bison constructors.
+    /// Abstract factory — creates one product in a family without exposing concrete types.
+    /// Clients depend on this, not on <see cref="Wolf"/> / <see cref="Bison"/> constructors.
     /// </summary>
     public abstract class Factory
     {
@@ -29,7 +30,12 @@
     }
 
     /// <summary>
-    /// Depends only on abstract factories — swap implementations without changing this class.
+    /// Client of Abstract Factory — depends only on abstract <see cref="Factory"/> instances.
+    /// <para>
+    /// Never calls <c>new Wolf()</c> / <c>new Bison()</c>. Swap
+    /// <see cref="HerbivoreFactory"/> / <see cref="CarnivoreFactory"/> without editing this class.
+    /// One line of output makes the “family of products” idea obvious.
+    /// </para>
     /// </summary>
     public class AnimalWorld
     {

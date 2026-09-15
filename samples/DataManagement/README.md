@@ -10,6 +10,14 @@ dotnet run --project samples/DataManagement
 
 Multi-entity soft-delete forces cascading via EF navigations (the hard part). File SQL + `@params` proves values never enter the SQL string.
 
+## Explaining soft-delete and `QueryBuilder`
+
+**Soft-delete:** mark `Deleted`/`Updated` (UTC) instead of removing rows; cascade with EF navigation metadata (`IsCollection`), not type-name heuristics.
+
+**`QueryBuilder`:** returns SQL text + parameter objects. Bind values separately — never `Replace` user input into the SQL string.
+
+**Takeaway:** soft-delete via metadata; parameterized SQL always.
+
 ## Do
 
 - Soft-delete with UTC timestamps and EF navigation metadata (`IsCollection` / references)

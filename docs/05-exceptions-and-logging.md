@@ -17,6 +17,10 @@ A deliberate throw at index `6` and a nested `RethrowDemo` make Prefer (`throw;`
 1. **Handle and continue** — loop calls `ProcessIndex`; index `6` throws `InvalidOperationException`; catch logs and continues.
 2. **Rethrow correctly** — `RethrowDemo` catches, then `throw;` (not `throw ex;`). The outer catch checks that the stack still mentions `ThrowInner`.
 
+### Explaining `throw;` vs `throw ex;`
+
+`throw;` rethrows the same exception instance and keeps the stack. `throw ex;` resets the stack to the catch site — you lose `ThrowInner` and waste hours debugging. Prefer `throw;` after logging/handling.
+
 ```bash
 dotnet run --project samples/Exceptions
 ```
@@ -45,6 +49,10 @@ Info → simulated Error → read-back shows the full loop: inject a log service
 1. Register `DatabaseContext`, `IExceptionLogRepository`, `ILogService` via the teaching DI helper
 2. `LogService` takes `IExceptionLogRepository` in its **constructor** (injection)
 3. Log an Info entry, throw a simulated app error, catch and log Error, then print stored logs via `GetLogs()`
+
+### Explaining `LogService`
+
+Constructor-injected `IExceptionLogRepository` — the service does not `new` its store. Log at boundaries (start, handled failure), then read back to prove persistence. Prefer levels with context; avoid logging secrets.
 
 ```bash
 dotnet run --project samples/Logging

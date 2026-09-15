@@ -1,8 +1,12 @@
 ﻿namespace Threads.Threads
 {
     /// <summary>
-    /// Baseline: every step runs one after another on the calling thread.
-    /// Total time ≈ sum of all step delays.
+    /// Baseline kitchen — every step runs one after another on the calling thread.
+    /// <para>
+    /// Total time ≈ sum of all step delays. Compare with <see cref="KitchenThread"/> (overlap + Join)
+    /// and <see cref="KitchenAsync"/> (<c>await Task.Delay</c>). This class is the timing yardstick,
+    /// not the “clever” concurrency code.
+    /// </para>
     /// </summary>
     public class Kitchen
     {
@@ -64,8 +68,11 @@
     }
 
     /// <summary>
-    /// Overlap independent work with Thread; Join enforces real dependencies
-    /// (pasta only after water boiled; sauce pour only after sauce ready).
+    /// Threaded kitchen — overlap independent work; <c>Join</c> enforces real dependencies.
+    /// <para>
+    /// Boil water / chop / set table can run together; pasta waits for water; sauce pour waits for sauce.
+    /// That dependency story is why this example exists — not “use more threads always.”
+    /// </para>
     /// </summary>
     public class KitchenThread : Kitchen
     {
@@ -108,9 +115,11 @@
     }
 
     /// <summary>
-    /// Same dependency graph as KitchenThread, but with async/await.
-    /// Task.Delay is a true async wait (does not block a thread like Thread.Sleep).
-    /// Starting tasks without awaiting yet lets independent work overlap.
+    /// Async kitchen — same dependency graph as <see cref="KitchenThread"/>, with <c>async</c>/<c>await</c>.
+    /// <para>
+    /// <c>Task.Delay</c> is a true async wait (does not block a thread like <c>Thread.Sleep</c>).
+    /// Starting tasks without awaiting yet lets independent work overlap. Methods are named <c>*Async</c>.
+    /// </para>
     /// </summary>
     public class KitchenAsync
     {

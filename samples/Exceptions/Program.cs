@@ -1,4 +1,8 @@
-﻿// Catch only what you handle. Prefer throw; over throw ex; to keep the stack trace.
+﻿// Prefer: catch only what you handle; rethrow with throw; (keeps the stack).
+// Avoid: empty catches; throw ex; (resets the stack — you lose ThrowInner in the demo).
+//
+// Explaining this Program: index 6 throws so the loop can handle and continue;
+// RethrowDemo shows throw; still points at ThrowInner in the printed stack.
 
 Console.WriteLine("=== Exceptions ===");
 
@@ -30,9 +34,7 @@ catch (Exception ex)
 static void ProcessIndex(int index)
 {
     if (index == 6)
-    {
         throw new InvalidOperationException("Simulated failure at index 6");
-    }
 
     Console.WriteLine($"Multiply {index * index}");
 }
@@ -50,7 +52,4 @@ static void RethrowDemo()
     }
 }
 
-static void ThrowInner()
-{
-    throw new InvalidOperationException("Inner failure");
-}
+static void ThrowInner() => throw new InvalidOperationException("Inner failure");

@@ -1,8 +1,11 @@
 ﻿namespace Dependency.Implementation
 {
     /// <summary>
-    /// Application service — depends on IMathRepo (abstraction), not MathRepo (concrete).
-    /// Registered in AppServices; injected into EconomicsController.
+    /// Application service in the DI graph — depends on <see cref="IMathRepo"/> (abstraction).
+    /// <para>
+    /// Registered in <see cref="AppServices"/>; injected into <see cref="EconomicsController"/>.
+    /// Never constructs its own repo — that is the Prefer path this sample teaches.
+    /// </para>
     /// </summary>
     public class MathService : IMathService
     {

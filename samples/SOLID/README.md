@@ -11,6 +11,17 @@ dotnet run --project samples/SOLID
 - **Printers** — clear ISP: a print-only device should not be forced to implement Scan/Fax.
 - **Shapes / animals** — LSP is checkable (areas add up; every animal can `Moves()` through `Habitat`).
 
+## Explaining the key types
+
+| Type | Role |
+| --- | --- |
+| `IMultiFunctionDevice` / `OldPrinter` | Don’t — fat interface forces unused Scan/Fax |
+| `IPrinter` / `PrintService` | Do — depend only on what you need |
+| `Shape` / `AreaCalculator` | LSP — any shape returns a sensible area |
+| `Habitat` | LSP — works for `Animal`, `Bird`, `Fish` |
+
+**Takeaway:** small interfaces; subtypes that keep the base promise.
+
 ## What’s here
 
 - **Interface Segregation** — fat `IMultiFunctionDevice` (Don’t) vs `IPrinter` / `IScanner` + `PrintService` (Do)

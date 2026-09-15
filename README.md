@@ -19,7 +19,7 @@ Requires **.NET SDK 8.0+** (CI builds with 8.0).
 
 ## Start here
 
-1. Read the [best practices guide](docs/README.md) — each page explains the **concept** and **how the sample code works**
+1. Read the [best practices guide](docs/README.md) — each page has **What**, **Why this example**, **Explaining …** (key types), and Prefer/Avoid
 2. Open `AL_NET_Library.sln` (projects under **samples**)
 3. Run a sample, e.g. `dotnet run --project samples/Dependency`
 

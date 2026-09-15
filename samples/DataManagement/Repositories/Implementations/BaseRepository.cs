@@ -6,8 +6,12 @@ using Microsoft.EntityFrameworkCore;
 namespace DataManagement.Repositories.Implementations
 {
     /// <summary>
-    /// Generic repository over BaseEntity.
-    /// Soft-delete sets Deleted/Updated instead of removing the row from the database.
+    /// Generic repository over <c>BaseEntity</c> — Prefer soft-delete + EF navigation metadata.
+    /// <para>
+    /// Soft-delete sets <c>Deleted</c>/<c>Updated</c> (UTC) instead of removing the row.
+    /// Cascading related entities uses EF metadata (<c>IsCollection</c>), not fragile type-name checks.
+    /// That cascading behavior is why this sample is multi-entity, not a single-table delete.
+    /// </para>
     /// </summary>
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {

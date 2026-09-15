@@ -1,8 +1,12 @@
 ﻿namespace AdvancedFeatures.Events
 {
     /// <summary>
-    /// Subscriber A: reacts to task lifecycle (e.g. update app state / UI).
-    /// Reads Title from TaskEventArgs — same raise, useful payload.
+    /// Subscriber A — reacts to task lifecycle (e.g. update app state / UI).
+    /// <para>
+    /// Method shape matches <c>EventHandler&lt;TaskEventArgs&gt;</c>:
+    /// <c>(object? sender, TaskEventArgs e)</c>. Reads <see cref="TaskEventArgs.Title"/> —
+    /// same raise as <see cref="EmailService"/>, different side effect.
+    /// </para>
     /// </summary>
     public class AppService
     {
