@@ -3,9 +3,11 @@
     /// <summary>
     /// Baseline kitchen — every step runs one after another on the calling thread.
     /// <para>
-    /// Total time ≈ sum of all step delays. Compare with <see cref="KitchenThread"/> (overlap + Join)
-    /// and <see cref="KitchenAsync"/> (<c>await Task.Delay</c>). This class is the timing yardstick,
-    /// not the “clever” concurrency code.
+    /// <b>Why a kitchen?</b> Cooking has steps everyone understands: some can happen at the same
+    /// time (boil water while chopping), and some cannot (pasta waits for boiling water).
+    /// That maps cleanly to concurrency Prefer/Avoid without sockets, databases, or fake “work.”
+    /// Total time ≈ sum of delays — the timing yardstick for <see cref="KitchenThread"/> /
+    /// <see cref="KitchenAsync"/>.
     /// </para>
     /// </summary>
     public class Kitchen

@@ -23,3 +23,10 @@ var sw3 = Stopwatch.StartNew();
 await asyncKitchen.MakePastaAsync();
 sw3.Stop();
 Console.WriteLine($"Elapsed: {sw3.ElapsedMilliseconds} ms");
+Console.WriteLine();
+
+// Kitchen overlaps independent work. Shared counters need synchronization.
+Console.WriteLine("=== Shared state (lock / Interlocked) ===");
+SharedCounterDemo.RunUnsafe();
+SharedCounterDemo.RunWithLock();
+SharedCounterDemo.RunWithInterlocked();
