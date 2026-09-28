@@ -28,7 +28,7 @@ dotnet run --project samples/AdvancedFeatures
 | Generics | [`GenericServices<T>`](Generics/Implementation/GenericServices.cs) | Constrain `T`, call `Calculate()` — never `switch` on `T` |
 | Custom LINQ | [`LinqExt`](Linq/LinqExt.cs) | `yield return` = deferred until enumerated |
 | Compiled queries | [`CompiledQueryEx`](CompiledQueries/CompiledQueryEx.cs) | Compile shape once; reuse with new parameters |
-| Reflection | [`PluginScanner`](Reflection/PluginScanner.cs) | Discover `[Plugin]` + `IPlugin`; Prefer direct members when the type is known |
+| Reflection | [`PluginScanner`](Reflection/PluginScanner.cs) / [`DynamicJsonLookup`](Reflection/DynamicJsonLookup.cs) | Discover `[Plugin]`; for varying JSON use `JsonNode` by name — not `GetProperty` |
 
 ### Reflection — `PluginScanner`
 

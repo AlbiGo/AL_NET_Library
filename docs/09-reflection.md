@@ -6,10 +6,11 @@
 
 ## Why this example
 
-Two demos side by side:
+Three demos:
 
-1. **Plugin discovery** — a Prefer use: types opt in with `[Plugin]` + `IPlugin`; the scanner finds them without Main listing concrete classes.
-2. **Property access** — Prefer direct members (or cached `PropertyInfo`) vs Avoid uncached magic-string lookups.
+1. **Plugin discovery** — Prefer: types opt in with `[Plugin]` + `IPlugin`.
+2. **Property access** — Prefer direct members (or cached `PropertyInfo`) vs Avoid uncached magic strings.
+3. **Dynamic JSON** — Prefer `JsonNode` / `JsonElement` by property name when the JSON shape always changes; Avoid `Type.GetProperty` on a deserialized `object`.
 
 ## How the sample code works
 
@@ -23,15 +24,7 @@ foreach (var plugin in plugins)
     Console.WriteLine(plugin.Describe());
 ```
 
-`PluginScanner` keeps types that:
-
-- are concrete
-- implement `IPlugin`
-- carry `[Plugin("…")]`
-
-then `Activator.CreateInstance` and returns `IPlugin` instances.
-
-### Prefer / Avoid — reading a property
+### Prefer / Avoid — reading a CLR property
 
 ```csharp
 PreferDirect(person);              // person.Name
@@ -39,29 +32,64 @@ PreferCachedReflection(person);  // cached PropertyInfo + nameof
 AvoidUncachedMagicString(person);  // GetProperty("Name") every call
 ```
 
+### Prefer / Avoid — value by name from varying JSON
+
+Payloads are loaded from files under `Reflection/`:
+
+- [`sample-order.json`](../samples/AdvancedFeatures/Reflection/sample-order.json) → `orderId`
+- [`sample-user.json`](../samples/AdvancedFeatures/Reflection/sample-user.json) → `email`
+- [`sample-sensor.json`](../samples/AdvancedFeatures/Reflection/sample-sensor.json) → `celsius`
+
+```csharp
+var orderJson = File.ReadAllText(Path.Combine(reflectionDir, "sample-order.json"));
+DynamicJsonLookup.GetByPropertyName(orderJson, "orderId");
+```
+
+Why CLR `GetProperty` fails on JSON (step-by-step):
+
+```csharp
+DynamicJsonLookup.ClrGetPropertyOnJson(userJson, "email");
+// Deserialize<object> → usually JsonElement
+// GetProperty("email") looks for a C# property on JsonElement → null
+// GetByPropertyName(userJson, "email") → ada@example.com
+```
+
+Search by property + value (returns the matching object):
+
+```csharp
+DynamicJsonLookup.GetObjectByPropertyValue(itemsJson, "email", "ada@example.com");
+// → {"type":"user","email":"ada@example.com","role":"admin"}
+```
+
 ### Explaining `PluginScanner`
 
-Like `CarServices` for delegates: this is the **work** reflection is good at — runtime discovery when the set of types is not fixed at compile time. Main never writes `new HelloPlugin()`.
+Runtime discovery when the set of types is not fixed at compile time. Main never writes `new HelloPlugin()`.
 
 ### Explaining `PropertyAccessDemo`
 
-When you already know `Person`, use `person.Name`. If a framework must reflect, cache `PropertyInfo` once and prefer `nameof(Person.Name)` over `"Name"`.
+When you already know `Person`, use `person.Name`. If a framework must reflect, cache `PropertyInfo` and prefer `nameof`.
+
+### Explaining `DynamicJsonLookup`
+
+Reflection answers “what members does this .NET type have?” JSON APIs answer “what keys does this document have?” For always-different JSON, Prefer `JsonNode` / `JsonElement`.
 
 ```bash
 dotnet run --project samples/AdvancedFeatures
 ```
 
-Look for the **Reflection** section in the console output.
+Look for **Reflection** and **Dynamic JSON** in the console output.
 
 ## Prefer
 
 - Attribute- or interface-based discovery (plugins, serializers, DI conventions)
 - `nameof` / `typeof`; cache metadata used repeatedly
 - Call through a known interface after `Activator` when possible
+- `JsonNode` / `JsonElement` to read a property by name from dynamic JSON
 
 ## Avoid
 
 - Reflection for ordinary domain get/set
 - Uncached `GetProperty` / `GetMethod` in hot loops
 - Magic strings that break under rename
+- Using reflection to read JSON keys after `Deserialize<object>`
 - Bypassing access modifiers without a framework-level reason

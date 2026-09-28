@@ -1,4 +1,4 @@
-﻿using AdvancedFeatures.Delegates;
+using AdvancedFeatures.Delegates;
 using AdvancedFeatures.Events;
 using AdvancedFeatures.Expressions;
 using AdvancedFeatures.Generics.Implementation;
@@ -7,11 +7,11 @@ using AdvancedFeatures.Linq;
 using AdvancedFeatures.Reflection;
 
 /// <summary>
-/// Extra garage step from another class — still attachable to <c>CarServiceDelegate</c>
-/// because <see cref="TransmissionService"/> has signature <c>void ()</c>.
+/// Extra garage step from another class — still attachable to <c>CarServiceDelegate</c> because
+/// <see cref="TransmissionService" /> has signature <c>void ()</c>.
 /// <para>
-/// Proves delegates care about shape, not hierarchy: this type sits next to
-/// <see cref="AdvancedFeatures.Delegates.CarServices"/> in the same multicast pipeline.
+/// Proves delegates care about shape, not hierarchy: this type sits next to <see
+/// cref="AdvancedFeatures.Delegates.CarServices" /> in the same multicast pipeline.
 /// </para>
 /// </summary>
 public class CarServiceExtension
@@ -128,5 +128,38 @@ internal class Program
         Console.WriteLine($"Direct:            {PropertyAccessDemo.PreferDirect(person)}");
         Console.WriteLine($"Cached reflection: {PropertyAccessDemo.PreferCachedReflection(person)}");
         Console.WriteLine($"Avoid (uncached):  {PropertyAccessDemo.AvoidUncachedMagicString(person)}");
+
+        Console.WriteLine();
+        Console.WriteLine("--- Dynamic JSON (shape always different) ---");
+        // Load real files — each payload has a different shape; only the property name is known.
+        var reflectionDir = Path.Combine(AppContext.BaseDirectory, "Reflection");
+        var orderJson = File.ReadAllText(Path.Combine(reflectionDir, "sample-order.json"));
+        var userJson = File.ReadAllText(Path.Combine(reflectionDir, "sample-user.json"));
+        var sensorJson = File.ReadAllText(Path.Combine(reflectionDir, "sample-sensor.json"));
+        var itemsJson = File.ReadAllText(Path.Combine(reflectionDir, "sample-items.json"));
+
+        Console.WriteLine($"JsonNode orderId:   {DynamicJsonLookup.GetByPropertyName(orderJson, "orderId")}");
+        Console.WriteLine($"JsonNode email:     {DynamicJsonLookup.GetByPropertyName(userJson, "email")}");
+        Console.WriteLine($"JsonElement celsius:{DynamicJsonLookup.GetWithJsonElement(sensorJson, "celsius")}");
+
+        // List of objects — same property name on each element; missing keys → null.
+        Console.WriteLine("List → type:");
+        var types = DynamicJsonLookup.GetByPropertyNameFromEach(itemsJson, "type");
+        for (var i = 0; i < types.Count; i++)
+            Console.WriteLine($"  [{i}] type={types[i]}");
+
+        Console.WriteLine("List → email (only user rows have it):");
+        var emails = DynamicJsonLookup.GetByPropertyNameFromEach(itemsJson, "email");
+        for (var i = 0; i < emails.Count; i++)
+
+            Console.WriteLine($"  [{i}] email={emails[i] ?? "(missing)"}");
+
+        // property + value → matching object
+        Console.WriteLine("Get object where email=ada@example.com:");
+        Console.WriteLine($"  {DynamicJsonLookup.GetObjectByPropertyValue(itemsJson, "email", "ada@example.com")}");
+
+        // Contrast: Deserialize<object> + GetProperty("email") asks the wrong question.
+        DynamicJsonLookup.ClrGetPropertyOnJson(userJson, "email");
+        Console.WriteLine($"  Same key via JsonNode: {DynamicJsonLookup.GetByPropertyName(userJson, "email")}");
     }
 }
